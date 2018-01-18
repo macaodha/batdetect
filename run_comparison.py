@@ -23,6 +23,8 @@ def read_baseline_res(baseline_file_name, test_files):
 
 if __name__ == '__main__':
     """
+    This compares several different algorithms for bat echolocation detection.
+
     The results can vary by a few percent from run to run. If you don't want to
     run a specific model or baseline comment it out.
     """

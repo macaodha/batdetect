@@ -1,20 +1,21 @@
-# Bat Call Detection in Audio
-Python code for the detection of bat echolocation calls in full spectrum audio recordings. This code recreate the results from the paper [Bat Detective - Deep Learning Tools for Bat Acoustic Signal Detection](https://www.biorxiv.org/content/early/2017/06/29/156869).
+# Bat Echolocation Call Detection in Audio Recordings
+Python code for the detection of bat echolocation calls in full spectrum audio recordings. This code recreate the results from the paper [Bat Detective - Deep Learning Tools for Bat Acoustic Signal Detection](https://www.biorxiv.org/content/early/2017/06/29/156869). You will also find some additional information and data on our [project page](http://visual.cs.ucl.ac.uk/pubs/batDetective).
 
 
 ### Training
 ##### 1 Download Data
 Download the data from [here](http://visual.cs.ucl.ac.uk/pubs/batDetective). It contains:   
+*baselines*: Results for three different commercial packages we compared against.
+*models*: Pre-trained CNN models.  
 *train_test_split*: the list of training and test files and the time of the bat calls in each file. The training data comes from Bat Detective and test sets have been manually verified.  
 *wav*: 4,246 time expanded .wav files from the iBats project.  
-*baselines*: Results for three different commercial packages we compared against.    
 
 ##### 2 Run Training and Evaluation Code
 Running *run_comparison.py* recreate the results in the paper (up to random initialization). It trains a CNN, Random Forest, and simple segmentation based models and compares their performance to three commercial systems.
 
 
 ### Run Detector on Your Own Data
-Running *run_detector.py* loads a pre-trained CNN and performs detection on a directory of audio files. Make sure *data_dir* points to the directory where your audio files are. You need to make sure that you have a trained model on your computer. You can get one by training your own model or downloading a pre-trained one (details in the previous steps).  
+Running *run_detector.py* loads a pre-trained CNN and performs detection on a directory of audio files. Make sure *data_dir* points to the directory where your audio files are. You need to make sure that you have a trained model on your computer. You can get one by training your own model or downloading a pre-trained one (details in the previous steps). Also make sure that if your data is already time expanded set *do_time_expansion=False*.  
 
 
 ### Requirements
@@ -35,8 +36,14 @@ weave 0.16.0
 
 
 ### Video
-Here is a short video that describes how our systems works and illustrates some of the results.
+Here is a short video that describes how our systems works.
 [![Screenshot](https://img.youtube.com/vi/u35jWHdhl-8/0.jpg)](https://www.youtube.com/watch?v=u35jWHdhl-8)
+
+
+### Links
+[Nature Smart Cities](https://naturesmartcities.com) Deployment of smart audio detectors that use our code base to detect bats in East London.    
+[Bat Detective](www.batdetective.org) Zooniverse citizen science project that was created to collected our training data.  
+[iBats](http://www.bats.org.uk/pages/ibatsprogram.html) Global bat monitoring program.    
 
 
 ### Reference
@@ -55,9 +62,8 @@ If you find our work useful in your research please consider citing our paper:
 }
 ```
 
+### Acknowledgements  
+We are enormously grateful for the efforts and enthusiasm of the amazing iBats and Bat Detective volunteers. We would also like to thank Ian Agranat and Joe Szewczak for useful discussions and access to their systems. Finally, we would like to thank Zooniverse for setting up and hosting the Bat Detective project.
 
 ### License
 Code, audio data, and annotations are available for research purposes only i.e. non-commercial use. For any other use of the software or data please contact the authors.
-
-## TODO
-set correct path to wav files
