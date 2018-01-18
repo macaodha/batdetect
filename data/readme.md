@@ -1,5 +1,5 @@
 This directory should contain the following directories:  
-baslines  
+baselines  
 models  
 train_test_split  
 wav  
