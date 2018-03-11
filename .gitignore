@@ -1,2 +1,4 @@
 *.pyc
-*.pyx
+*.DS_Store
+*.c
+*.so
