@@ -79,14 +79,14 @@ def corr2d(ip, filters, bias):
 
     # produce views of the input
     op = view_as_windows(ip, filters.shape[1:])
-    op_width, op_height = op.shape[1:3]
+    op_height, op_width = op.shape[1:3]
 
     # reshape to 2D matrix and correlate with filters
     op = op.reshape((np.prod(op.shape[:3]), np.prod(op.shape[3:])))
     op = np.dot(filters_re, op.T)
 
     # reshape back to the correct op size
-    op = op.reshape((filters.shape[0], op_width, op_height))
+    op = op.reshape((filters.shape[0], op_height, op_width))
 
     # add bias term
     op += bias[..., np.newaxis, np.newaxis]

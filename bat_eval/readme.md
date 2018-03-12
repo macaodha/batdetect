@@ -23,7 +23,7 @@ The code has been tested using the following package versions:
 `Python 2.7.12`   
 `scipy 0.19.0`  
 `numpy 1.12.1`  
-`pandas 0.19.2`
+`pandas 0.19.2`  
 `cython 0.24.1` - not necessary  
 
 
