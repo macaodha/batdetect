@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.ndimage import zoom
 from scipy.ndimage.filters import gaussian_filter1d
-import cPickle as pickle
+import pickle
 import time
 
 from spectrogram import Spectrogram

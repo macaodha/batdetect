@@ -81,8 +81,8 @@ if __name__ == "__main__":
     save_res = True
 
     # load data
-    data_dir = 'wavs/'       # this is the path to your audio files
-    op_ann_dir = 'results/'  # this where your results will be saved
+    data_dir = '../../Bat Recordings/'       # this is the path to your audio files
+    op_ann_dir = data_dir+'results/'  # this where your results will be saved
     op_file_name_total = op_ann_dir + 'op_file.csv'
     if not os.path.isdir(op_ann_dir):
         os.makedirs(op_ann_dir)
