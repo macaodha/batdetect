@@ -59,8 +59,8 @@ def test_nms():
     pos, prob = nms_1d(y, win_size, y.shape[0])
     pos_f, prob_f = nms_fast.nms_1d(y, win_size, y.shape[0])
 
-    print 'diff between implementations =', 1-np.isclose(prob_f, prob).mean()
-    print 'diff between implementations =', 1-np.isclose(pos_f, pos).mean()
+    print( 'diff between implementations =', 1-np.isclose(prob_f, prob).mean())
+    print( 'diff between implementations =', 1-np.isclose(pos_f, pos).mean())
 
     plt.close('all')
     plt.plot(y)

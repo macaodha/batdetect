@@ -32,7 +32,7 @@ class CPUDetector:
         params_file is the path to the network parameters
         """
 
-        self.weights = np.load(weight_file)
+        self.weights = np.load(weight_file, encoding='bytes')
         if not all([weight.dtype==np.float32 for weight in self.weights]):
             for i in range(self.weights.shape[0]):
                 self.weights[i] = self.weights[i].astype(np.float32)
