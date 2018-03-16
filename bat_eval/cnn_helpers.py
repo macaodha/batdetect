@@ -11,10 +11,11 @@ def aligned_malloc(shape, dtype, alignment=16):
     alignment is required memory alignment in bytes
     """
     itemsize = np.dtype(dtype).itemsize
-    extra = alignment / itemsize
+    extra = alignment // itemsize
     size = np.prod(shape)
+    #print(size, type(size), extra, type(extra))
     buf = np.empty(size + extra, dtype=dtype)
-    ofs = (-buf.ctypes.data % alignment) / itemsize
+    ofs = (-buf.ctypes.data % alignment) // itemsize
     aa = buf[ofs:ofs+size].reshape(shape)
     assert (aa.ctypes.data % alignment) == 0
     assert (aa.flags['C_CONTIGUOUS']) == True
@@ -120,7 +121,7 @@ def fully_connected_as_corr(ip, filters, bias):
     """
 
     # create DxHxsliding_width views of input - similar to corr2d
-    sliding_width = filters.shape[0] / np.prod(ip.shape[:2])
+    sliding_width = filters.shape[0] // np.prod(ip.shape[:2])
     op = view_as_windows(ip, (ip.shape[0],ip.shape[1],sliding_width))
     op = op.reshape((np.prod(op.shape[:3]), np.prod(op.shape[3:])))
 

@@ -138,7 +138,7 @@ class CPUDetector:
         prob = prob - np.amax(prob, axis=1, keepdims=True)
         prob = np.exp(prob)
         prob = prob[:, 1] / prob.sum(1)
-        prob = np.hstack((prob, np.zeros((ip.shape[1]/4)-prob.shape[0], dtype=np.float32)))
+        prob = np.hstack((prob, np.zeros((ip.shape[1]//4)-prob.shape[0], dtype=np.float32)))
 
         return prob
 
@@ -169,7 +169,7 @@ class CPUDetector:
         prob = prob - np.amax(prob, axis=1, keepdims=True)
         prob = np.exp(prob)
         prob = prob[:, 1] / prob.sum(1)
-        prob = np.hstack((prob, np.zeros((ip.shape[1]/4)-prob.shape[0], dtype=np.float32)))
+        prob = np.hstack((prob, np.zeros((ip.shape[1]//4)-prob.shape[0], dtype=np.float32)))
 
         return prob
 
