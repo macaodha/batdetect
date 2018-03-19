@@ -10,6 +10,7 @@ import lasagne
 import theano
 import sys
 import cPickle as pickle
+import json
 
 save_detector = False
 
@@ -45,5 +46,5 @@ mod_params['nms_win_size'] = int(mod.model.params.nms_win_size)
 mod_params['smooth_op_prediction_sigma'] = mod.model.params.smooth_op_prediction_sigma
 
 params_file = model_file[:-4] + '_params.p'
-with open(params_file, 'wb') as fp:
-    pickle.dump(mod_params, fp)
+with open(params_file, 'w') as fp:
+    json.dump(mod_params, fp)

@@ -6,10 +6,9 @@ Module to read wav files using numpy arrays
 Functions
 ---------
 `read`: Return the sample rate (in samples/sec) and data from a WAV file.
-
 """
-from __future__ import division, print_function, absolute_import
 
+from __future__ import division, print_function, absolute_import
 import sys
 import numpy
 import struct

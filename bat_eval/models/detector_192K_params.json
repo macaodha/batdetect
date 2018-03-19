@@ -1,0 +1,1 @@
+{"min_freq": 10, "crop_spec": true, "slice_scale": 0.02667, "nms_win_size": 21, "mean_log_mag": 0.5, "denoise": true, "smooth_spec": true, "overlap": 0.75, "max_freq": 240, "smooth_op_prediction_sigma": 1.0335917312661498, "chunk_size": 0, "win_size": 0.23}

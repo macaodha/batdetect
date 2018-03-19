@@ -1,7 +1,8 @@
+from __future__ import print_function
 import numpy as np
 from scipy.ndimage import zoom
 from scipy.ndimage.filters import gaussian_filter1d
-import cPickle as pickle
+import json
 import time
 
 from spectrogram import Spectrogram
@@ -32,13 +33,13 @@ class CPUDetector:
         params_file is the path to the network parameters
         """
 
-        self.weights = np.load(weight_file)
+        self.weights = np.load(weight_file, encoding='latin1')
         if not all([weight.dtype==np.float32 for weight in self.weights]):
             for i in range(self.weights.shape[0]):
                 self.weights[i] = self.weights[i].astype(np.float32)
 
-        with open(params_file, 'rb') as fp:
-            params = pickle.load(fp)
+        with open(params_file) as fp:
+            params = json.load(fp)
 
         self.chunk_size = 4.0  # seconds
         self.win_size = params['win_size']
@@ -138,7 +139,7 @@ class CPUDetector:
         prob = prob - np.amax(prob, axis=1, keepdims=True)
         prob = np.exp(prob)
         prob = prob[:, 1] / prob.sum(1)
-        prob = np.hstack((prob, np.zeros((ip.shape[1]/4)-prob.shape[0], dtype=np.float32)))
+        prob = np.hstack((prob, np.zeros((ip.shape[1]//4)-prob.shape[0], dtype=np.float32)))
 
         return prob
 
@@ -169,7 +170,7 @@ class CPUDetector:
         prob = prob - np.amax(prob, axis=1, keepdims=True)
         prob = np.exp(prob)
         prob = prob[:, 1] / prob.sum(1)
-        prob = np.hstack((prob, np.zeros((ip.shape[1]/4)-prob.shape[0], dtype=np.float32)))
+        prob = np.hstack((prob, np.zeros((ip.shape[1]//4)-prob.shape[0], dtype=np.float32)))
 
         return prob
 

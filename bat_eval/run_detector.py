@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import os
 import glob
@@ -14,15 +15,15 @@ def read_audio(file_name, do_time_expansion, chunk_size, win_size):
     try:
         samp_rate_orig, audio = mywavfile.read(file_name)
     except:
-        print '  Error reading file'
+        print('  Error reading file')
         return True, None, None, None, None
 
     # convert to mono if stereo
     if len(audio.shape) == 2:
-        print '  Warning: stereo file. Just taking left channel.'
+        print('  Warning: stereo file. Just taking left channel.')
         audio = audio[:, 0]
     file_dur = audio.shape[0] / float(samp_rate_orig)
-    print '  dur', round(file_dur,3), '(secs) , fs', samp_rate_orig
+    print('  dur', round(file_dur,3), '(secs) , fs', samp_rate_orig)
 
     # original model is trained on time expanded data
     samp_rate = samp_rate_orig
@@ -92,7 +93,7 @@ if __name__ == "__main__":
 
     # load and create the detector
     det_model_file = 'models/detector.npy'
-    det_params_file = det_model_file[:-4] + '_params.p'
+    det_params_file = det_model_file[:-4] + '_params.json'
     det = detector.CPUDetector(det_model_file, det_params_file)
 
     # loop through audio files
@@ -100,7 +101,7 @@ if __name__ == "__main__":
     for file_cnt, file_name in enumerate(audio_files):
 
         file_name_root = file_name[len(data_dir):]
-        print '\n', file_cnt+1, 'of', len(audio_files), '\t', file_name_root
+        print('\n', file_cnt+1, 'of', len(audio_files), '\t', file_name_root)
 
         # read audio file - skip file if can't read it
         read_fail, audio, file_dur, samp_rate, samp_rate_orig = read_audio(file_name,
@@ -114,9 +115,9 @@ if __name__ == "__main__":
                                         detection_thresh)
         toc = time.time()
 
-        print '  detection time', round(toc-tic, 3), '(secs)'
+        print('  detection time', round(toc-tic, 3), '(secs)')
         num_calls = len(det_time)
-        print '  ' + str(num_calls) + ' calls found'
+        print('  ' + str(num_calls) + ' calls found')
 
         # save results
         if save_res:
@@ -133,8 +134,8 @@ if __name__ == "__main__":
 
     # save results for all files to large csv
     if save_res and (len(results) > 0):
-        print '\nsaving results to', op_file_name_total
+        print('\nsaving results to', op_file_name_total)
         wo.save_to_txt(op_file_name_total, results)
     else:
-        print 'no detections to save'
+        print('no detections to save')
 

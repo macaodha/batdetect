@@ -19,12 +19,12 @@ This contains python code for bat echolocation call detection in full spectrum a
 ## Misc
 
 #### Requirements
-The code has been tested using the following package versions:  
+The code has been tested using Python2.7 (but should work with Python3.6) with the following package versions:  
 `Python 2.7.12`   
 `scipy 0.19.0`  
 `numpy 1.12.1`  
 `pandas 0.19.2`  
-`cython 0.24.1` - not necessary  
+`cython 0.24.1` - not required  
 
 
 #### Different Detection Models

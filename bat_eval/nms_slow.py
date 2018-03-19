@@ -1,10 +1,11 @@
+from __future__ import print_function
 import numpy as np
 
 def nms_1d(src, win_size, file_duration):
     """1D Non maximum suppression
        src: vector of length N
     """
-    
+
     pos = []
     src_cnt = 0
     max_ind = 0
@@ -49,7 +50,7 @@ def nms_1d(src, win_size, file_duration):
 def test_nms():
     import matplotlib.pyplot as plt
     import numpy as np
-    import pyximport; pyximport.install(reload_support=True)
+    #import pyximport; pyximport.install(reload_support=True)
     import nms as nms_fast
 
     y = np.sin(np.arange(1000)/100.0*np.pi)
@@ -59,8 +60,8 @@ def test_nms():
     pos, prob = nms_1d(y, win_size, y.shape[0])
     pos_f, prob_f = nms_fast.nms_1d(y, win_size, y.shape[0])
 
-    print 'diff between implementations =', 1-np.isclose(prob_f, prob).mean()
-    print 'diff between implementations =', 1-np.isclose(pos_f, pos).mean()
+    print('diff between implementations =', 1-np.isclose(prob_f, prob).mean())
+    print('diff between implementations =', 1-np.isclose(pos_f, pos).mean())
 
     plt.close('all')
     plt.plot(y)
