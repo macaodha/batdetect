@@ -1,13 +1,21 @@
 from __future__ import print_function
 import numpy as np
 import os
-import glob
+import fnmatch
 import time
 import sys
 
 import write_op as wo
 import cpu_detection as detector
 import mywavfile
+
+
+def get_audio_files(ip_dir, file_type='*.wav'):
+    matches = []
+    for root, dirnames, filenames in os.walk(ip_dir):
+        for filename in fnmatch.filter(filenames, file_type):
+            matches.append(os.path.join(root, filename))
+    return matches
 
 
 def read_audio(file_name, do_time_expansion, chunk_size, win_size):
@@ -77,19 +85,28 @@ def run_model(det, audio, file_dur, samp_rate, detection_thresh, max_num_calls=0
 if __name__ == "__main__":
 
     # params
-    detection_thresh = 0.95  # make this smaller if you want more calls
-    do_time_expansion = True # if audio is already time expanded set this to False
-    save_res = True
+    detection_thresh = 0.95        # make this smaller if you want more calls
+    do_time_expansion = True       # if audio is already time expanded set this to False
+    save_individual_results = True # if True will create an output for each file
+    save_summary_result = True     # if True will create a single csv file with all reults
 
     # load data
-    data_dir = 'wavs/'       # this is the path to your audio files
-    op_ann_dir = 'results/'  # this where your results will be saved
-    op_file_name_total = op_ann_dir + 'op_file.csv'
+    data_dir = 'wavs/'                                   # this is the path to your audio files
+    op_ann_dir = 'results/'                              # this where your results will be saved
+    op_ann_dir_ind = op_ann_dir + 'individual_results/'  # this where individual results will be saved
+    op_file_name_total = op_ann_dir + 'results.csv'
     if not os.path.isdir(op_ann_dir):
         os.makedirs(op_ann_dir)
+    if save_individual_results and not os.path.isdir(op_ann_dir_ind):
+        os.makedirs(op_ann_dir_ind)
 
     # read audio files
-    audio_files = sorted(glob.glob(data_dir + '/*.wav'))
+    audio_files = get_audio_files(data_dir, '*.wav')
+
+    print('Processing        ', len(audio_files), 'files')
+    print('Input directory   ', data_dir)
+    print('Results directory ', op_ann_dir, '\n')
+
 
     # load and create the detector
     det_model_file = 'models/detector.npy'
@@ -100,8 +117,8 @@ if __name__ == "__main__":
     results = []
     for file_cnt, file_name in enumerate(audio_files):
 
-        file_name_root = file_name[len(data_dir):]
-        print('\n', file_cnt+1, 'of', len(audio_files), '\t', file_name_root)
+        file_name_basename = file_name[len(data_dir):]
+        print('\n', file_cnt+1, 'of', len(audio_files), '\t', file_name_basename)
 
         # read audio file - skip file if can't read it
         read_fail, audio, file_dur, samp_rate, samp_rate_orig = read_audio(file_name,
@@ -120,22 +137,20 @@ if __name__ == "__main__":
         print('  ' + str(num_calls) + ' calls found')
 
         # save results
-        if save_res:
+        if save_individual_results:
             # save to AudioTagger format
-            file_name_root = file_name_root.replace('/', '_')
-            op_file_name = op_ann_dir + file_name_root[:-4] + '-sceneRect.csv'
-            wo.create_audio_tagger_op(file_name_root, op_file_name, det_time,
+            op_file_name = op_ann_dir_ind + file_name_basename.replace('/', '_')[:-4] + '-sceneRect.csv'
+            wo.create_audio_tagger_op(file_name_basename, op_file_name, det_time,
                                       det_prob, samp_rate_orig, class_name='bat')
 
             # save as dictionary
             if num_calls > 0:
-                res = {'filename':file_name_root, 'time':det_time, 'prob':det_prob}
+                res = {'filename':file_name_basename, 'time':det_time, 'prob':det_prob}
                 results.append(res)
 
     # save results for all files to large csv
-    if save_res and (len(results) > 0):
+    if save_summary_result and (len(results) > 0):
         print('\nsaving results to', op_file_name_total)
         wo.save_to_txt(op_file_name_total, results)
     else:
         print('no detections to save')
-

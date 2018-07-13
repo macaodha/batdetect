@@ -1,6 +1,6 @@
 # CPU Bat Detector Code
 
-This contains python code for bat echolocation call detection in full spectrum audio recordings. This is a stripped down CPU based version of the detector that can be used for deployment.
+This contains python code for bat echolocation call detection in full spectrum audio recordings. This is a stripped down CPU based version of the detector with minimal dependencies that can be used for deployment.
 
 
 #### Installation Instructions
@@ -10,11 +10,12 @@ This contains python code for bat echolocation call detection in full spectrum a
 
 
 #### Running on Your Own Data
-* Change the `data_dir = 'wavs/'` variable so that it points to the location of the audio files your want to run the detector on.
+* Change the `data_dir = 'wavs/'` variable so that it points to the location of the audio files you want to run the detector on.
 * Specify where you want to results to be saved by setting `op_ann_dir = 'results/'`.
 * To run open up the command line and type:  
   `python run_detector.py`
 * If you want the detector to be less conservative in it's detections lower the value of `detection_thresh`.
+* By setting `save_individual_results = False` the code will not save individual results files.
 
 ## Misc
 
