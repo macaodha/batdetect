@@ -91,10 +91,10 @@ if __name__ == "__main__":
     save_summary_result = True     # if True will create a single csv file with all reults
 
     # load data
-    data_dir = 'wavs/'                                   # this is the path to your audio files
-    op_ann_dir = 'results/'                              # this where your results will be saved
-    op_ann_dir_ind = op_ann_dir + 'individual_results/'  # this where individual results will be saved
-    op_file_name_total = op_ann_dir + 'results.csv'
+    data_dir = 'wavs'                                   # this is the path to your audio files
+    op_ann_dir = 'results'                              # this where your results will be saved
+    op_ann_dir_ind = os.path.join(op_ann_dir, 'individual_results')  # this where individual results will be saved
+    op_file_name_total = os.path.join(op_ann_dir, 'results.csv')
     if not os.path.isdir(op_ann_dir):
         os.makedirs(op_ann_dir)
     if save_individual_results and not os.path.isdir(op_ann_dir_ind):
@@ -139,7 +139,8 @@ if __name__ == "__main__":
         # save results
         if save_individual_results:
             # save to AudioTagger format
-            op_file_name = op_ann_dir_ind + file_name_basename.replace('/', '_')[:-4] + '-sceneRect.csv'
+            f_name_fmt = file_name_basename.replace('/', '_').replace('\\', '_')[:-4]
+            op_file_name = os.path.join(op_ann_dir_ind, f_name_fmt) + '-sceneRect.csv'
             wo.create_audio_tagger_op(file_name_basename, op_file_name, det_time,
                                       det_prob, samp_rate_orig, class_name='bat')
 
