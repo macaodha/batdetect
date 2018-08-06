@@ -37,7 +37,7 @@ class AudioForest:
         # flatten list of lists and set to correct output
         features = np.vstack(feats)
         labels = np.vstack(labs)
-        print 'train size', features.shape
+        print( 'train size', features.shape)
         self.forest.train(features, labels, False)
 
     def test(self, file_name=None, file_duration=None, audio_samples=None, sampling_rate=None):
@@ -67,7 +67,7 @@ class AudioForest:
             features = compute_features(audio_samples, sampling_rate, self.params)
         else:
             if self.params.load_features_from_file:
-                features = np.load(self.params.feature_dir + file_name + '.npy')
+                features = np.load(self.params.feature_dir + file_name + '.npy', encoding='bytes')
             else:
                 sampling_rate, audio_samples = wavfile.read(self.params.audio_dir + file_name + '.wav')
                 features = compute_features(audio_samples, sampling_rate, self.params)

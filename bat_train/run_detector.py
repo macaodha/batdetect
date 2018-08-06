@@ -14,15 +14,15 @@ def read_audio(file_name, do_time_expansion, chunk_size, win_size):
     try:
         samp_rate_orig, audio = wavfile.read(file_name)
     except:
-        print '  Error reading file'
+        print( '  Error reading file')
         return True, None, None, None, None
 
     # convert to mono if stereo
     if len(audio.shape) == 2:
-        print '  Warning: stereo file. Just taking right channel.'
+        print( '  Warning: stereo file. Just taking right channel.')
         audio = audio[:, 1]
     file_dur = audio.shape[0] / float(samp_rate_orig)
-    print '  dur', round(file_dur,3), '(secs) , fs', samp_rate_orig
+    print( '  dur', round(file_dur,3), '(secs) , fs', samp_rate_orig)
 
     # original model is trained on time expanded data
     samp_rate = samp_rate_orig
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     for file_cnt, file_name in enumerate(audio_files):
 
         file_name_root = file_name[len(data_dir):]
-        print '\n', file_cnt+1, 'of', len(audio_files), '\t', file_name_root
+        print( '\n', file_cnt+1, 'of', len(audio_files), '\t', file_name_root)
 
         # read audio file - skip file if cannot read
         read_fail, audio, file_dur, samp_rate, samp_rate_orig = read_audio(file_name,
@@ -127,9 +127,9 @@ if __name__ == "__main__":
                                           detection_thresh)
         toc = time.time()
 
-        print '  detection time', round(toc-tic, 3), '(secs)'
+        print( '  detection time', round(toc-tic, 3), '(secs)')
         num_calls = len(det_time)
-        print '  ' + str(num_calls) + ' calls found'
+        print( '  ' + str(num_calls) + ' calls found')
 
         # save results
         if save_res:
@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
     # save to large csv
     if save_res and (len(results) > 0):
-        print '\nsaving results to', op_file_name_total
+        print( '\nsaving results to', op_file_name_total)
         wo.save_to_txt(op_file_name_total, results, np.asarray(['bat']))
     else:
-        print 'no detections to save'
+        print( 'no detections to save')

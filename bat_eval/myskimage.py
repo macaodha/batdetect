@@ -6,7 +6,6 @@ The "image_as_float" and "guess_spatial_dimensions" functions
 were also copied to as dependencies of "gaussian" function.
 """
 from __future__ import division
-import numbers
 import collections as coll
 import numpy as np
 from scipy import ndimage as ndi
@@ -41,7 +40,7 @@ def warn(msg):
 
 
 def img_as_float(image):
-    dtype=np.float32
+    dtype = np.float32
     force_copy = False
 
     """

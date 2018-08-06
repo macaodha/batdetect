@@ -38,7 +38,7 @@ class NeuralNet:
         # flatten list of lists and set to correct output size
         features = np.vstack(feats)
         labels = np.vstack(labs).astype(np.uint8)[:,0]
-        print 'train size', features.shape
+        print( 'train size', features.shape)
 
         # train network
         input_var = theano.tensor.tensor4('inputs')
@@ -90,7 +90,7 @@ class NeuralNet:
             features = compute_features(audio_samples, sampling_rate, self.params)
         else:
             if self.params.load_features_from_file:
-                features = np.load(self.params.feature_dir + file_name + '.npy')
+                features = np.load(self.params.feature_dir + file_name + '.npy', encoding='bytes')
             else:
                 sampling_rate, audio_samples = wavfile.read(self.params.audio_dir + file_name + '.wav')
                 features = compute_features(audio_samples, sampling_rate, self.params)
@@ -120,7 +120,7 @@ def build_cnn(ip_size, input_var, net_type):
     elif net_type == 'small':
         net = network_sm(ip_size, input_var)
     else:
-        print 'Error: network not defined'
+        print( 'Error: network not defined')
     return net
 
 def network_big(ip_size, input_var):

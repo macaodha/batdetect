@@ -1,13 +1,12 @@
+import pickle
+import warnings
 import numpy as np
 from scipy.ndimage import zoom
 from scipy.ndimage.filters import gaussian_filter1d
-import pickle
-import time
 
 from spectrogram import Spectrogram
 import cnn_helpers as ch
 
-import warnings
 warnings.simplefilter("ignore", UserWarning)
 
 try:
@@ -33,7 +32,7 @@ class CPUDetector:
         """
 
         self.weights = np.load(weight_file, encoding='bytes')
-        if not all([weight.dtype==np.float32 for weight in self.weights]):
+        if not all([weight.dtype == np.float32 for weight in self.weights]):
             for i in range(self.weights.shape[0]):
                 self.weights[i] = self.weights[i].astype(np.float32)
 
@@ -99,10 +98,15 @@ class CPUDetector:
                                     max_freq=self.max_freq, min_freq=self.min_freq)
         hspec = self.sp.process_spectrogram(hspec, denoise_spec=self.denoise,
                                     smooth_spec=self.smooth_spec)
-        nsize = (np.ceil(hspec.shape[0]/2.0).astype(int), np.ceil(hspec.shape[1]/2.0).astype(int))
-        spec = ch.aligned_malloc(nsize, np.float32)
-
-        zoom(hspec, 0.5, output=spec, order=1)
+        #nsize = (np.ceil(hspec.shape[0]/2.0).astype(int), 
+        #                 np.ceil(hspec.shape[1]/2.0).astype(int))
+        nsize = zoom(hspec, 0.5, order=1).shape #dm edit
+        spec = ch.aligned_malloc(nsize, np.float32) 
+        try:
+            zoom(hspec, 0.5, output=spec, order=1)
+        except Exception as e:
+            print(e, hspec.shape, nsize)
+            #print(spec, hspec, nsize,e)
         return spec
 
 
@@ -172,4 +176,3 @@ class CPUDetector:
         prob = np.hstack((prob, np.zeros((ip.shape[1]//4)-prob.shape[0], dtype=np.float32)))
 
         return prob
-

@@ -11,7 +11,7 @@ sns.set_style('whitegrid')
 def plot_prec_recall(alg_name, recall, precision, nms_prob=None):
     # average precision
     ave_prec = evl.calc_average_precision(recall, precision)
-    print 'average precision (area) = %.3f ' % ave_prec
+    print( 'average precision (area) = %.3f ' % ave_prec)
 
     # recall at 95% precision
     desired_precision = 0.95
@@ -20,7 +20,7 @@ def plot_prec_recall(alg_name, recall, precision, nms_prob=None):
     else:
         recall_at_precision = 0
 
-    print 'recall at', int(desired_precision*100), '% precision = ', "%.3f" % recall_at_precision
+    print( 'recall at', int(desired_precision*100), '% precision = ', "%.3f" % recall_at_precision)
     plt.plot([0, 1.02], [desired_precision, desired_precision], 'b:', linewidth=1)
     plt.plot([recall_at_precision, recall_at_precision], [0, desired_precision], 'b:', linewidth=1)
 

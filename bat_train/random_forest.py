@@ -254,7 +254,7 @@ class Tree:
 
 ## Parallel training helper - used to train trees in parallel
 def train_forest_helper(t_id, X, Y, params, seed):
-    #print 'tree', t_id
+    #print( 'tree', t_id)
     np.random.seed(seed)
     tree = Tree(t_id, params)
     tree.train(X, Y)
@@ -277,9 +277,9 @@ class Forest:
             self.trees.extend(Parallel(n_jobs=-1)(delayed(train_forest_helper)(t_id, X, Y, self.params, seeds[t_id])
                                              for t_id in range(self.params.num_trees)))
         else:
-            #print 'Standard training'
+            #print( 'Standard training')
             for t_id in range(self.params.num_trees):
-                print 'tree', t_id
+                print( 'tree', t_id)
                 tree = Tree(t_id, self.params)
                 tree.train(X, Y)
                 self.trees.append(tree)

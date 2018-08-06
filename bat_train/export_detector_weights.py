@@ -3,7 +3,7 @@ This script outputs the weights of a trained model so the standalone detector co
 can use it.
 """
 
-import cPickle as pickle
+import pickle
 from lasagne.layers.helper import get_all_param_values, get_output_shape, set_all_param_values
 import numpy as np
 import lasagne
@@ -13,16 +13,16 @@ import cPickle as pickle
 
 save_detector = False
 
-print 'saving detector'
+print( 'saving detector')
 model_dir = 'results/models/'
 model_file = model_dir + 'test_set_norfolk.mod'
-print model_file
+print( model_file)
 
 mod = pickle.load(open(model_file))
 
 weights = get_all_param_values(mod.model.network['prob'])
 np.save(model_file[:-4], weights)
-print 'weights shape', len(weights)
+print( 'weights shape', len(weights))
 
 # save detection params
 mod_params = {'win_size':0, 'chunk_size':0, 'max_freq':0, 'min_freq':0,

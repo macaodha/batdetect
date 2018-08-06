@@ -39,11 +39,11 @@ if __name__ == '__main__':
         os.mkdir(result_dir)
     if not os.path.isdir(model_dir):
         os.mkdir(model_dir)
-    print 'test set:', test_set
+    print( 'test set:', test_set)
     plt.close('all')
 
     # train and test_pos are in units of seconds
-    loaded_data_tr = np.load(data_set)
+    loaded_data_tr = np.load(data_set, encoding='bytes')
     train_pos = loaded_data_tr['train_pos']
     train_files = loaded_data_tr['train_files']
     train_durations = loaded_data_tr['train_durations']
@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     #
     # CNN
-    print '\ncnn'
+    print( '\ncnn')
     params.classification_model = 'cnn'
     model = clss.Classifier(params)
     # train and test
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     #
     # random forest
-    print '\nrandom forest'
+    print( '\nrandom forest')
     params.classification_model = 'rf_vanilla'
     model = clss.Classifier(params)
     # train and test
@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
     #
     # segment
-    print '\nsegment'
+    print( '\nsegment')
     params.classification_model = 'segment'
     model = clss.Classifier(params)
     # train and test
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     # scanr
     scanr_bat_results = base_line_dir + 'scanr/test_set_'+ test_set +'_scanr.csv'
     if os.path.isfile(scanr_bat_results):
-        print '\nscanr'
+        print( '\nscanr')
         scanr_pos, scanr_prob = read_baseline_res(scanr_bat_results, test_files)
         precision_scanr, recall_scanr = evl.prec_recall_1d(scanr_pos, scanr_prob, test_pos, test_durations, params.detection_overlap, params.window_size)
         res.plot_prec_recall('scanr', recall_scanr, precision_scanr)
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     # sonobat
     sono_bat_results = base_line_dir + 'sonobat/test_set_'+ test_set +'_sono.csv'
     if os.path.isfile(sono_bat_results):
-        print '\nsonobat'
+        print( '\nsonobat')
         sono_pos, sono_prob = read_baseline_res(sono_bat_results, test_files)
         precision_sono, recall_sono = evl.prec_recall_1d(sono_pos, sono_prob, test_pos, test_durations, params.detection_overlap, params.window_size)
         res.plot_prec_recall('sonobat', recall_sono, precision_sono)
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     # kaleidoscope
     kal_bat_results = base_line_dir + 'kaleidoscope/test_set_'+ test_set +'_kaleidoscope.csv'
     if os.path.isfile(kal_bat_results):
-        print '\nkaleidoscope'
+        print( '\nkaleidoscope')
         kal_pos, kal_prob = read_baseline_res(kal_bat_results, test_files)
         precision_kal, recall_kal = evl.prec_recall_1d(kal_pos, kal_prob, test_pos, test_durations, params.detection_overlap, params.window_size)
         res.plot_prec_recall('kaleidoscope', recall_kal, precision_kal)

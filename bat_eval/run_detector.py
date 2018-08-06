@@ -75,15 +75,43 @@ def run_model(det, audio, file_dur, samp_rate, detection_thresh, max_num_calls=0
 
 if __name__ == "__main__":
 
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Process some bat files.')
+    parser.add_argument('--threshold', type=float, default=0.9,
+                   help='detection threshold')
+    parser.add_argument('--datadir',  
+                   help='root directory for output')
+    parser.add_argument('--resultsdir',  default='results',
+                   help='directory in which to place the results')
+    parser.add_argument('--resfile',  default='op_file.csv',
+                   help='results file name')
+    parser.add_argument('--timeexp',  default=True,
+                   help='Apply time expansion')
+    parser.add_argument('--saveres',  default=True,
+                   help='Save results files')
+				   
+    args = parser.parse_args()
+    print(args)
     # params
-    detection_thresh = 0.95  # make this smaller if you want more calls
-    do_time_expansion = True # if audio is already time expanded set this to False
-    save_res = True
+    detection_thresh = 0.9
+    if 'threshold' in args:
+	    detection_thresh =args.threshold  # make this smaller if you want more calls
+    do_time_expansion = args.timeexp # if audio is already time expanded set this to False
+    save_res = args.saveres
 
     # load data
-    data_dir = '../../Bat Recordings/'       # this is the path to your audio files
-    op_ann_dir = data_dir+'results/'  # this where your results will be saved
-    op_file_name_total = op_ann_dir + 'op_file.csv'
+    data_dir = 'C:\\Users/David/Documents/Bat recordings/Audiomoth/moth4/Stonebarrow/'      # this is the path to your audio files
+    if 'datadir' in args:
+        data_dir=args.datadir  
+    outdir = 'results3/'
+    if 'resultsdir' in args:
+        outdir = args.resultsdir+'/'
+    op_ann_dir = data_dir + outdir  # this where your results will be saved
+    outfile = 'op_file.csv'
+    if 'resfile' in args:
+	    outfile = args.resfile
+    op_file_name_total = op_ann_dir + outfile
     if not os.path.isdir(op_ann_dir):
         os.makedirs(op_ann_dir)
 

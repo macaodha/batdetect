@@ -42,3 +42,8 @@ We are enormously grateful for the efforts and enthusiasm of the amazing iBats a
 
 #### License
 Code, audio data, and annotations are available for research purposes only i.e. non-commercial use. For any other use of the software or data please contact the authors.
+
+#### Updates by [Dr David Martin](mailto:d.m.a.martin@dundee.ac.uk) 2018
+
+1. Moved bat_eval to Python 3
+2. Add .gitattributes to allow download to Windows without breaking models.

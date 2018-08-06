@@ -12,7 +12,7 @@ def compute_error_auc(op_str, gt, pred, prob):
     fpr, tpr, thresholds = roc_curve(gt, pred)
     roc_auc = auc(fpr, tpr)
 
-    print op_str, ', class acc = %.3f, ROC AUC = %.3f' % (class_acc, roc_auc)
+    print( op_str, ', class acc = %.3f, ROC AUC = %.3f' % (class_acc, roc_auc))
     #return class_acc, roc_auc
 
 
