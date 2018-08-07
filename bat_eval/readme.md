@@ -37,9 +37,11 @@ The code has been tested using Python2.7 (but should work with Python3.6) with t
 
 #### Viewing Outputs
 * The code outputs annotations as one big csv file. The location where to save the file is specified with the variable:
-  `op_file_name_total = 'res/op_file.csv'`
+  `op_file_name_total = 'res/op_file.csv'`  
+  It contains three fields `file_name`, `detection_time`, and `detection_prob` which indicated the time in file and detector confidence (higher is more confident) for each detected call.
 * It also saves the outputs in a format compatible with [AudioTagger](https://github.com/groakat/AudioTagger). The output directory for these annotations is specified as:
-`op_ann_dir = 'res/'`
+`op_ann_dir = 'res/'`  
+The individual `*-sceneRect.csv` files contain the same information that is specified in the main results file `op_file_name_total`, where `LabelStartTime_Seconds` corresponds to `detection_time` and `DetectorConfidence` corresponds to `detection_prob`. The additional fields (e.g. `Spec_x1`) are specific to Audiotagger and do not contain any extra information.  
 
 
 #### Performance

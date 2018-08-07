@@ -88,7 +88,7 @@ if __name__ == "__main__":
     detection_thresh = 0.95        # make this smaller if you want more calls
     do_time_expansion = True       # if audio is already time expanded set this to False
     save_individual_results = True # if True will create an output for each file
-    save_summary_result = True     # if True will create a single csv file with all reults
+    save_summary_result = True     # if True will create a single csv file with all results
 
     # load data
     data_dir = 'wavs'                                   # this is the path to your audio files
