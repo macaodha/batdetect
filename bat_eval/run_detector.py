@@ -10,11 +10,12 @@ import cpu_detection as detector
 import mywavfile
 
 
-def get_audio_files(ip_dir, file_type='*.wav'):
+def get_audio_files(ip_dir):
     matches = []
     for root, dirnames, filenames in os.walk(ip_dir):
-        for filename in fnmatch.filter(filenames, file_type):
-            matches.append(os.path.join(root, filename))
+        for filename in filenames:
+            if filename.lower().endswith('.wav'):
+                matches.append(os.path.join(root, filename))
     return matches
 
 
@@ -101,7 +102,7 @@ if __name__ == "__main__":
         os.makedirs(op_ann_dir_ind)
 
     # read audio files
-    audio_files = get_audio_files(data_dir, '*.wav')
+    audio_files = get_audio_files(data_dir)
 
     print('Processing        ', len(audio_files), 'files')
     print('Input directory   ', data_dir)
