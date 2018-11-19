@@ -145,10 +145,10 @@ if __name__ == "__main__":
             wo.create_audio_tagger_op(file_name_basename, op_file_name, det_time,
                                       det_prob, samp_rate_orig, class_name='bat')
 
-            # save as dictionary
-            if num_calls > 0:
-                res = {'filename':file_name_basename, 'time':det_time, 'prob':det_prob}
-                results.append(res)
+        # save as dictionary
+        if num_calls > 0:
+            res = {'filename':file_name_basename, 'time':det_time, 'prob':det_prob}
+            results.append(res)
 
     # save results for all files to large csv
     if save_summary_result and (len(results) > 0):
