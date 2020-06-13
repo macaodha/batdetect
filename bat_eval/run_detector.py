@@ -106,12 +106,14 @@ if __name__ == "__main__":
         data_dir=args.datadir  
     outdir = 'results3/'
     if 'resultsdir' in args:
-        outdir = args.resultsdir+'/'
-    op_ann_dir = data_dir + outdir  # this where your results will be saved
+        outdir = args.resultsdir
+    op_ann_dir = os.path.join(data_dir , outdir)  # this where your results will be saved
+
+    os.makedirs(op_ann_dir, exist_ok=True)
     outfile = 'op_file.csv'
     if 'resfile' in args:
 	    outfile = args.resfile
-    op_file_name_total = op_ann_dir + outfile
+    op_file_name_total = os.path.join(op_ann_dir, outfile)
     if not os.path.isdir(op_ann_dir):
         os.makedirs(op_ann_dir)
 
