@@ -20,6 +20,7 @@ class SpecViewer (tk.Frame):
         self.observations=None
         self.createWidgets()
         self.redrawing=0
+        self.colormap =plt.cm.seismic
 
     def createWidgets(self):
         menu = tk.Menu(self.master)
@@ -42,7 +43,7 @@ class SpecViewer (tk.Frame):
         #self.loadButton.grid(column=1,row=0)
         #self.menubar.grid()
         self.audioframe=tk.Frame(self,bg='#fff')
-        self.audioframe.pack(fill="x", expand=True, side='top')
+        self.audioframe.pack(fill="x", side='top')
 #        self.audioframe.grid(sticky=tk.W+tk.E)
         self.audiofiles_lb = tk.Listbox(self.audioframe)
         self.audiofiles_lb.grid(row = 0, column=1, rowspan=4, sticky=tk.N+tk.S)
@@ -85,6 +86,17 @@ class SpecViewer (tk.Frame):
         self.freqzoom_sld.grid(row=2,column =4, sticky=tk.E+tk.W)
         self.imagedraw_btn = tk.Button(self.analysisblock, text="Update Plot", command=self.replot_image)
         self.imagedraw_btn.grid(column=5, row=1, rowspan=2,sticky=tk.E+tk.W+tk.N+tk.S)
+        self.colormap_lbl = tk.Label(self.analysisblock, text="Spectrum colours")
+        self.colormap_lbl.grid(columnspan=2, column=6, row=1)
+        self.colormapchooser = tk.Listbox(self.analysisblock, height=1)
+        for m in dir(plt.cm):
+            if type(getattr(plt.cm,m)).__name__.endswith('Colormap'):
+                self.colormapchooser.insert(tk.END, m)
+        self.colormap_sb = tk.Scrollbar(self.analysisblock )
+        self.colormapchooser.config(yscrollcommand = self.colormap_sb.set)
+        self.colormap_sb.config(command=self.colormapchooser.yview)
+        self.colormapchooser.grid(row=2,column=6)
+        self.colormap_sb.grid(row=2,column=7)
         self.thresholdslider = tk.Scale(self.analysisblock,from_=0.0, to=1.0, 
                                         resolution=0.01, orient=tk.HORIZONTAL, command=self.setthreshold)
         self.thresholdslider.set(0.8)
@@ -94,13 +106,15 @@ class SpecViewer (tk.Frame):
         
         self.imageframe=tk.Frame(self,bg='#fff')
 #        self.imageframe.grid(sticky=tk.N+tk.S+tk.W+tk.E)
-        self.imageframe.pack(fill="both", expand=True, weight=2)
+        self.imageframe.pack(fill="both", expand=True)
         self.imageframe.bind('<Configure>', self.resize_image)
         self.sview=tk.Canvas(self.imageframe, bg='#f00', height=400, width=800)
 #        self.sview.grid(sticky=tk.N+tk.S+tk.W+tk.E)#        
         self.sview.pack(fill="both", expand=True)
     
     def replot_image(self):
+        cm=self.colormapchooser.get(self.colormapchooser.curselection())
+        self.colormap = getattr(plt.cm, cm)
         self.resize_image(1)
         
     def settimestart (self, value):
@@ -147,7 +161,21 @@ class SpecViewer (tk.Frame):
             if self.plotlimits[0] != self.timestart_sld.get():
                 self.timestart_sld.set(self.plotlimits[0])
             #self.resize_image(1)
-        
+    def setcolormap(self, value):
+        '''
+        Set the colormap for the spectrogram
+
+        Parameters
+        ----------
+        value : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        '''
+        self.colormap = getattr(plt.cm, value)
     def setfreqstart (self, value):
         '''
         Sets the start of the frequency window.
@@ -393,12 +421,14 @@ https://stackoverflow.com/questions/8598673/how-to-save-a-pylab-figure-into-in-m
         txt=self.sview.create_text(dims[0]/2, dims[1]/2, text='Generating Spectrogram. Please wait ... ')
         self.sview.pack()
 
-        p,freqs,bins,im = ax.specgram(self.audio, NFFT=1024, Fs=self.audioparams.framerate, noverlap=512)
+        p,freqs,bins,im = ax.specgram(self.audio, NFFT=1024, Fs=self.audioparams.framerate, cmap=self.colormap,noverlap=512)
         print('foobar')
         self.imbounds=im.get_window_extent().extents
         
         ax.set_xlim(self.plotlimits[0],self.plotlimits[1])
         ax.set_ylim(self.plotlimits[2],self.plotlimits[3])
+        ax.set_ylabel('Frequency (Hz)')
+        ax.set_xlabel('Time (seconds)')
         self.fullrange=im.get_window_extent().extents
         buf = io.BytesIO()
         print('foobar2')
