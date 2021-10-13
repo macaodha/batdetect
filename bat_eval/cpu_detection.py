@@ -11,15 +11,15 @@ import cnn_helpers as ch
 import warnings
 warnings.simplefilter("ignore", UserWarning)
 
-try:
-    import nms as nms
-except ImportError as e:
-    print("Import Error: {0}".format(e))
-    print('please compile fast nms by running:')
-    print('python setup.py build_ext --inplace')
-    print('using slow nms in the meantime.')
-    import nms_slow as nms
-
+#try:
+#    import nms as nms
+#except ImportError as e:
+#    print("Import Error: {0}".format(e))
+#    print('please compile fast nms by running:')
+#    print('python setup.py build_ext --inplace')
+#    print('using slow nms in the meantime.')
+#    import nms_slow as nms
+import nms_slow as nms
 
 class CPUDetector:
 

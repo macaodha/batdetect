@@ -1,7 +1,7 @@
 import numpy as np
-import evaluate as evl
+#import evaluate as evl
 import cls_audio_forest as cls_rf
-import cls_cnn as cls_cnn
+import cls_cnn
 import cls_segment as seg
 import create_results as res
 import time
@@ -18,7 +18,7 @@ class Classifier:
         elif self.params.classification_model == 'segment':
             self.model = seg.SegmentAudio(self.params)
         else:
-            print 'Invalid model specified'
+            print('Invalid model specified')
 
     def save_features(self, files):
         self.model.save_features(files)
@@ -34,9 +34,9 @@ class Classifier:
 
         # hard negative mining
         if self.params.num_hard_negative_mining > 0 and self.params.classification_model != 'segment':
-            print '\nhard negative mining'
+            print('\nhard negative mining')
             for hn in range(self.params.num_hard_negative_mining):
-                print '\thmn round', hn
+                print('\thmn round'), hn
                 positions, class_labels = self.do_hnm(files, gt_pos, durations, positions, class_labels)
                 self.model.train(positions, class_labels, files, durations)
 

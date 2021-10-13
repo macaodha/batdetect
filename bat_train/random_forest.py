@@ -1,6 +1,6 @@
 import numpy as np
 from joblib import Parallel, delayed
-import weave  # not in scipy any more - needs to be installed separately
+#import weave  # not in scipy any more - needs to be installed separately
 
 class ForestParams:
     def __init__(self, num_classes, trees=50, depth=20, min_cnt=2, tests=5000):
@@ -150,7 +150,17 @@ class Tree:
             }
         }
         """
-        weave.inline(code, ['X', 'op', 'tree'])
+        for ex_id in range(0,X[0]):
+            node_loc = 0
+            while tree[node_loc] != -1:
+                if X[ex_id, int(tree[node_loc+2])]  <  tree[node_loc+3]:
+                    node_loc = tree[node_loc+1] #right node
+                else:
+                    node_loc = tree[node_loc] #left node
+
+            for c_it in range(0,op[1]):
+                op[ex_id, c_it] = tree[node_loc + 2 + c_it]
+        #weave.inline(code, ['X', 'op', 'tree'])
         return op
 
     def get_leaf_ids(self, X):
@@ -177,7 +187,16 @@ class Tree:
 
         }
         """
-        weave.inline(code, ['X', 'op', 'tree'])
+        for ex_id in range(0,X[0]):
+            node_loc = 0
+            while tree[node_loc] != -1:
+                if X[ex_id, int(tree[node_loc+2])]  <  tree[node_loc+3]:
+                    node_loc = tree[node_loc+1] #right node
+                else:
+                    node_loc = tree[node_loc] #left node
+
+            op[ex_id] = tree[node_loc + 1] #leaf id
+        #weave.inline(code, ['X', 'op', 'tree'])
         return op
 
     def calc_impurity(self, y_local, test_res):
@@ -254,7 +273,7 @@ class Tree:
 
 ## Parallel training helper - used to train trees in parallel
 def train_forest_helper(t_id, X, Y, params, seed):
-    #print 'tree', t_id
+    print('tree', t_id)
     np.random.seed(seed)
     tree = Tree(t_id, params)
     tree.train(X, Y)
@@ -277,9 +296,9 @@ class Forest:
             self.trees.extend(Parallel(n_jobs=-1)(delayed(train_forest_helper)(t_id, X, Y, self.params, seeds[t_id])
                                              for t_id in range(self.params.num_trees)))
         else:
-            #print 'Standard training'
+            print('Standard training')
             for t_id in range(self.params.num_trees):
-                print 'tree', t_id
+                print('tree', t_id)
                 tree = Tree(t_id, self.params)
                 tree.train(X, Y)
                 self.trees.append(tree)

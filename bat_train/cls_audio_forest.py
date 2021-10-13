@@ -4,7 +4,7 @@ import numpy as np
 from skimage.util.shape import view_as_windows
 from scipy.ndimage import zoom
 import pyximport; pyximport.install()
-import nms as nms
+import nms_slow as nms
 from scipy.ndimage.filters import gaussian_filter1d
 import spectrogram as sp
 from skimage import filters
@@ -37,7 +37,7 @@ class AudioForest:
         # flatten list of lists and set to correct output
         features = np.vstack(feats)
         labels = np.vstack(labs)
-        print 'train size', features.shape
+        print('train size', features.shape)
         self.forest.train(features, labels, False)
 
     def test(self, file_name=None, file_duration=None, audio_samples=None, sampling_rate=None):

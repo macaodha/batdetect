@@ -19,8 +19,8 @@ def save_to_txt(op_file, results, class_names):
             for jj in range(len(results[ii]['prob'])):
 
                 row_str = results[ii]['filename'] + ','
-                tm = round(results[ii]['time'][jj],3)
-                pr = round(results[ii]['prob'][jj],3)
+                tm      = round(results[ii]['time'][jj],3)
+                pr      = round(results[ii]['prob'][jj],3)
                 row_str += str(tm) + ',' + str(pr)
 
                 for cc in range(num_top_classes):
@@ -41,23 +41,23 @@ def create_audio_tagger_op(ip_file_name, op_file_name, st_times, det_confidence,
                  'LabelArea_DataPoints', 'DetectorConfidence',
                  'ClassifierConfidence']
 
-    nstep = 0.001
-    nwin = 0.003
+    nstep      = 0.001
+    nwin       = 0.003
     call_width = 0.001  # code does not output call width so just put in dummy value
-    y_max = (samp_rate*nwin)/2.0
-    num_calls = len(st_times)
+    y_max      = (samp_rate*nwin)/2.0
+    num_calls  = len(st_times)
 
     if num_calls == 0:
         da_at = pd.DataFrame(index=np.arange(0), columns=col_names)
     else:
         da_at = pd.DataFrame(index=np.arange(0, num_calls), columns=col_names)
-        da_at['Spec_NStep'] = nstep
-        da_at['Spec_NWin'] = nwin
-        da_at['Label'] = 'bat'
+        da_at['Spec_NStep']     = nstep
+        da_at['Spec_NWin']      = nwin
+        da_at['Label']          = 'bat'
         da_at['LabelTimeStamp'] = dt.datetime.now().isoformat()
-        da_at['Spec_y1'] = 0
-        da_at['Spec_y2'] = y_max
-        da_at['Filename'] = ip_file_name
+        da_at['Spec_y1']        = 0
+        da_at['Spec_y2']        = y_max
+        da_at['Filename']       = ip_file_name
 
         for ii in np.arange(0, num_calls):
 
@@ -69,11 +69,11 @@ def create_audio_tagger_op(ip_file_name, op_file_name, st_times, det_confidence,
             da_at.loc[ii, 'Spec_x1'] = st_time/nstep
             da_at.loc[ii, 'Spec_x2'] = (st_time + call_width)/nstep
 
-            da_at.loc[ii, 'DetectorConfidence'] = round(det_confidence[ii], 3)
+            da_at.loc[ii, 'DetectorConfidence']   = round(det_confidence[ii], 3)
             da_at.loc[ii, 'ClassifierConfidence'] = round(class_prob[ii], 3)
 
     # save to disk
-    da_at.to_csv(op_file_name, index=False)
+    da_at.to_csv(op_file_name, index = False)
 
     return da_at
 

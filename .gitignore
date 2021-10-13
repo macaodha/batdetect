@@ -2,3 +2,8 @@
 *.DS_Store
 *.c
 *.so
+
+bat_train/data/baselines
+bat_train/data/models
+bat_train/data/train_test_split
+bat_train/data/wav

@@ -15,7 +15,7 @@ def denoise(spec_noisy, mask=None):
 
     else:
         # user defined mask
-        mask_inv = np.invert(mask)
+        mask_inv     = np.invert(mask)
         spec_denoise = spec_noisy.copy()
 
         if np.sum(mask) > 0:
@@ -38,10 +38,10 @@ def gen_mag_spectrogram_fft(x, nfft, noverlap):
     """
 
     # window data
-    step = nfft - noverlap
-    shape = (nfft, (x.shape[-1]-noverlap)//step)
+    step    = nfft - noverlap
+    shape   = (nfft, (x.shape[-1]-noverlap)//step)
     strides = (x.strides[0], step*x.strides[0])
-    x_wins = np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
+    x_wins  = np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
 
     # apply window
     x_wins_han = np.hanning(x_wins.shape[0])[..., np.newaxis] * x_wins
@@ -67,14 +67,14 @@ def gen_mag_spectrogram(x, fs, ms, overlap_perc):
     Computes magnitude spectrogram by specifying time.
     """
 
-    nfft = int(ms*fs)
+    nfft     = int(ms*fs)
     noverlap = int(overlap_perc*nfft)
 
     # window data
-    step = nfft - noverlap
-    shape = (nfft, (x.shape[-1]-noverlap)//step)
+    step    = nfft - noverlap
+    shape   = (nfft, (x.shape[-1]-noverlap)//step)
     strides = (x.strides[0], step*x.strides[0])
-    x_wins = np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
+    x_wins  = np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
 
     # apply window
     x_wins_han = np.hanning(x_wins.shape[0])[..., np.newaxis] * x_wins
@@ -111,11 +111,11 @@ def gen_spectrogram(audio_samples, sampling_rate, fft_win_length, fft_overlap, c
         req_height = max_freq-min_freq
         if spec.shape[0] < req_height:
             zero_pad = np.zeros((req_height-spec.shape[0], spec.shape[1]))
-            spec = np.vstack((zero_pad, spec))
+            spec     = np.vstack((zero_pad, spec))
 
     # perform log scaling - here the same as matplotlib
     log_scaling = 2.0 * (1.0 / sampling_rate) * (1.0/(np.abs(np.hanning(int(fft_win_length*sampling_rate)))**2).sum())
-    spec = np.log(1.0 + log_scaling*spec)
+    spec        = np.log(1.0 + log_scaling*spec)
 
     return spec
 
