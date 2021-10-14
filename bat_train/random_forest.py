@@ -4,39 +4,39 @@ from joblib import Parallel, delayed
 
 class ForestParams:
     def __init__(self, num_classes, trees=50, depth=20, min_cnt=2, tests=5000):
-        self.num_tests = tests
+        self.num_tests      = tests
         self.min_sample_cnt = min_cnt
-        self.max_depth = depth
-        self.num_trees = trees
-        self.bag_size = 0.8
+        self.max_depth      = depth
+        self.num_trees      = trees
+        self.bag_size       = 0.8
         self.train_parallel = True
-        self.num_classes = num_classes  # assumes that the classes are ordered from 0 to C
+        self.num_classes    = num_classes  # assumes that the classes are ordered from 0 to C
 
 
 class Node:
 
     def __init__(self, node_id, node_cnt, exs_at_node, impurity, probability):
-        self.node_id = node_id  # id of absolute node
-        self.node_cnt = node_cnt  # id not including nodes that didn't get made
+        self.node_id     = node_id  # id of absolute node
+        self.node_cnt    = node_cnt  # id not including nodes that didn't get made
         self.exs_at_node = exs_at_node
-        self.impurity = impurity
-        self.num_exs = float(exs_at_node.shape[0])
-        self.is_leaf = True
-        self.info_gain = 0.0
+        self.impurity    = impurity
+        self.num_exs     = float(exs_at_node.shape[0])
+        self.is_leaf     = True
+        self.info_gain   = 0.0
 
         # output
         self.probability = probability.copy()
-        self.class_id = probability.argmax()
+        self.class_id    = probability.argmax()
 
         # node test
-        self.test_ind1 = 0
+        self.test_ind1   = 0
         self.test_thresh = 0.0
 
     def update_node(self, test_ind1, test_thresh, info_gain):
-        self.test_ind1 = test_ind1
+        self.test_ind1   = test_ind1
         self.test_thresh = test_thresh
-        self.info_gain = info_gain
-        self.is_leaf = False
+        self.info_gain   = info_gain
+        self.is_leaf     = False
 
     def create_child(self, test_res, impurity, prob, child_type, node_cnt):
         # save absolute location in dataset
@@ -59,9 +59,9 @@ class Node:
             node_array[2] = self.test_ind1
             node_array[3] = self.test_thresh
         else:
-            node_array = np.zeros(2+self.probability.shape[0])
-            node_array[0] = -1  # indicates that its a leaf
-            node_array[1] = self.node_cnt  # the id of the node
+            node_array     = np.zeros(2+self.probability.shape[0])
+            node_array[0]  = -1  # indicates that its a leaf
+            node_array[1]  = self.node_cnt  # the id of the node
             node_array[2:] = self.probability.copy()
         return node_array
 
@@ -69,9 +69,9 @@ class Node:
 class Tree:
 
     def __init__(self, tree_id, tree_params):
-        self.tree_id = tree_id
-        self.tree_params = tree_params
-        self.num_nodes = 0
+        self.tree_id      = tree_id
+        self.tree_params  = tree_params
+        self.num_nodes    = 0
         self.compact_tree = None  # used for fast testing forest and small memory footprint
 
     def build_tree(self, X, Y, node):
@@ -91,7 +91,7 @@ class Tree:
         prob, impurity = self.calc_impurity(np.take(Y, exs_at_node), np.ones((exs_at_node.shape[0], 1), dtype='bool'))
 
         # create root
-        self.root = Node(0, 0, exs_at_node, impurity, prob[:, 0])
+        self.root      = Node(0, 0, exs_at_node, impurity, prob[:, 0])
         self.num_nodes = 1
 
         # build tree
@@ -101,12 +101,12 @@ class Tree:
         self.compact_tree, _ = self.traverse_tree(self.root, np.zeros(0))
 
     def traverse_tree(self, node, compact_tree_in):
-        node_loc = compact_tree_in.shape[0]
+        node_loc     = compact_tree_in.shape[0]
         compact_tree = np.hstack((compact_tree_in, node.get_compact_node()))
 
         # this assumes that the index for the left and right child nodes are the first two
         if not node.is_leaf:
-            compact_tree, compact_tree[node_loc] = self.traverse_tree(node.left_node, compact_tree)
+            compact_tree, compact_tree[node_loc]   = self.traverse_tree(node.left_node, compact_tree)
             compact_tree, compact_tree[node_loc+1] = self.traverse_tree(node.right_node, compact_tree)
 
         return compact_tree, node_loc
@@ -126,7 +126,7 @@ class Tree:
         return op
 
     def test_fast(self, X):
-        op = np.zeros((X.shape[0], self.tree_params.num_classes))
+        op   = np.zeros((X.shape[0], self.tree_params.num_classes))
         tree = self.compact_tree  # work around
 
         #in memory: for non leaf  node - 0 is lchild index, 1 is rchild, 2 is dim to test, 3 is threshold
@@ -136,7 +136,8 @@ class Tree:
         for (ex_id=0; ex_id<NX[0]; ex_id++) {
             node_loc = 0;
             while (tree[node_loc] != -1) {
-                if (X2(ex_id, int(tree[node_loc+2]))  <  tree[node_loc+3]) {
+                ab = (X2(ex_id, int(tree[node_loc+2]))
+                if ab <  tree[node_loc+3]) {
                     node_loc = tree[node_loc+1];  // right node
                 }
                 else {
@@ -150,21 +151,30 @@ class Tree:
             }
         }
         """
-        for ex_id in range(0,X[0]):
-            node_loc = 0
-            while tree[node_loc] != -1:
-                if X[ex_id, int(tree[node_loc+2])]  <  tree[node_loc+3]:
-                    node_loc = tree[node_loc+1] #right node
+        print(len(X[0]))
+        for ex_id in range(0, X.shape[0]):
+            node_loc = int(0)
+            while tree[int(node_loc)] != -1:
+                print('X.shape: ', X.shape)
+                print('a,b: ', int(ex_id), int(tree[int(node_loc+1)]))
+                #print('X[a,b]')
+                #print(X[int(ex_id), int(tree[int(node_loc+2)]-1)])
+                #print('tree[node]')
+                #print(tree[int(node_loc+3)])
+                #print('X<Y')
+                #print(X[int(ex_id), int(tree[int(node_loc+2)]-1)]  <  tree[int(node_loc+3)])
+                if X[int(ex_id), int(tree[int(node_loc+2)])]  <  tree[int(node_loc+3)]:
+                    node_loc = tree[int(node_loc)+1] #right node
                 else:
-                    node_loc = tree[node_loc] #left node
+                    node_loc = tree[int(node_loc)] #left node
 
-            for c_it in range(0,op[1]):
-                op[ex_id, c_it] = tree[node_loc + 2 + c_it]
+            for c_it in range(0, len(op[1])):
+                op[int(ex_id), int(c_it)] = tree[int(node_loc + 2 + c_it)]
         #weave.inline(code, ['X', 'op', 'tree'])
         return op
 
     def get_leaf_ids(self, X):
-        op = np.zeros((X.shape[0]))
+        op   = np.zeros((X.shape[0]))
         tree = self.compact_tree  # work around
 
         #in memory: for non leaf  node - 0 is lchild index, 1 is rchild, 2 is dim to test, 3 is threshold
@@ -187,15 +197,15 @@ class Tree:
 
         }
         """
-        for ex_id in range(0,X[0]):
+        for ex_id in range(0, X.shape[0]):
             node_loc = 0
-            while tree[node_loc] != -1:
-                if X[ex_id, int(tree[node_loc+2])]  <  tree[node_loc+3]:
-                    node_loc = tree[node_loc+1] #right node
+            while tree[int(node_loc)] != -1:
+                if X[int(ex_id), int(tree[int(node_loc)+2])]  <  tree[int(node_loc)+3]:
+                    node_loc = tree[int(node_loc + 1)] #right node
                 else:
-                    node_loc = tree[node_loc] #left node
+                    node_loc = tree[int(node_loc)] #left node
 
-            op[ex_id] = tree[node_loc + 1] #leaf id
+            op[int(ex_id)] = tree[int(node_loc + 1)] #leaf id
         #weave.inline(code, ['X', 'op', 'tree'])
         return op
 
@@ -225,11 +235,11 @@ class Tree:
     def node_split(self, x_local):
         # left node is false, right is true
         # single dim test
-        test_inds_1 = np.sort(np.random.random_integers(0, x_local.shape[1]-1, self.tree_params.num_tests))
+        test_inds_1    = np.sort(np.random.random_integers(0, x_local.shape[1]-1, self.tree_params.num_tests))
         x_local_expand = x_local.take(test_inds_1, 1)
-        x_min = x_local_expand.min(0)
-        x_max = x_local_expand.max(0)
-        test_thresh = (x_max - x_min)*np.random.random_sample(self.tree_params.num_tests) + x_min
+        x_min          = x_local_expand.min(0)
+        x_max          = x_local_expand.max(0)
+        test_thresh    = (x_max - x_min)*np.random.random_sample(self.tree_params.num_tests) + x_min
         #valid_var = (x_max != x_min)
 
         test_res = x_local_expand < test_thresh
@@ -241,8 +251,8 @@ class Tree:
         test_res, test_inds1, test_thresh = self.node_split(x_local)
 
         # count examples left and right
-        num_exs_l = (~test_res).sum(axis=0).astype('float')
-        num_exs_r = x_local.shape[0] - num_exs_l  # i.e. num_exs_r = test_res.sum(axis=0).astype('float')
+        num_exs_l  = (~test_res).sum(axis=0).astype('float')
+        num_exs_r  = x_local.shape[0] - num_exs_l  # i.e. num_exs_r = test_res.sum(axis=0).astype('float')
         valid_inds = (num_exs_l >= self.tree_params.min_sample_cnt) & (num_exs_r >= self.tree_params.min_sample_cnt)
 
         successful_split = False
@@ -284,7 +294,7 @@ class Forest:
 
     def __init__(self, params):
         self.params = params
-        self.trees = []
+        self.trees  = []
 
     def train(self, X, Y, delete_old_trees):
         if delete_old_trees:
@@ -306,6 +316,7 @@ class Forest:
     def test(self, X):
         op = np.zeros((X.shape[0], self.params.num_classes))
         for tt, tree in enumerate(self.trees):
+            print(tt)
             op_local = tree.test_fast(X)
             op += op_local
         op /= float(len(self.trees))
@@ -314,6 +325,7 @@ class Forest:
     def get_leaf_ids(self, X):
         op = np.zeros((X.shape[0], len(self.trees)), dtype=np.int64)
         for tt, tree in enumerate(self.trees):
+            print(tt)
             op[:, tt] = tree.get_leaf_ids(X)
         return op
 

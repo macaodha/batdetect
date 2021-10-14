@@ -5,10 +5,10 @@ from scipy.ndimage.filters import gaussian_filter1d
 import spectrogram as sp
 from scipy.io import wavfile
 import pyximport; pyximport.install()
-import nms_slow as nms
+import nms
 
 import theano
-#theano.config.optimizer="None"
+theano.config.optimizer="None"
 import lasagne
 
 

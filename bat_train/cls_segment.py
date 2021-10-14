@@ -21,7 +21,7 @@ class SegmentAudio:
 
     def test(self, file_name=None, file_duration=None, audio_samples=None, sampling_rate=None):
 
-        sampling_rate, audio_samples = wavfile.read(self.params.audio_dir + file_name + '.wav')
+        sampling_rate, audio_samples = wavfile.read(self.params.audio_dir + file_name.decode() + '.wav')
 
         spectrogram = sp.gen_spectrogram(audio_samples, sampling_rate, self.params.fft_win_length,
                     self.params.fft_overlap, crop_spec=self.params.crop_spec, max_freq=self.params.max_freq,

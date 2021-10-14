@@ -8,8 +8,8 @@ import classifier as clss
 import pandas as pd
 import pickle
 
-import os
-os.environ['THEANO_FLAGS'] = 'optimizer=None'
+#import os
+#os.environ['THEANO_FLAGS'] = 'optimizer=None'
 
 def read_baseline_res(baseline_file_name, test_files):
     da   = pd.read_csv(baseline_file_name)
@@ -63,13 +63,13 @@ if __name__ == '__main__':
     params.classification_model = 'cnn'
     model = clss.Classifier(params)
     # train and test
-    model.train(train_files, train_pos, train_durations)
-    nms_pos, nms_prob = model.test_batch(test_files, test_pos, test_durations, False, '')
+    #model.train(train_files, train_pos, train_durations)
+    #nms_pos, nms_prob = model.test_batch(test_files, test_pos, test_durations, False, '')
     # compute precision recall
-    precision, recall = evl.prec_recall_1d(nms_pos, nms_prob, test_pos, test_durations, model.params.detection_overlap, model.params.window_size)
-    res.plot_prec_recall('cnn', recall, precision, nms_prob)
+    #precision, recall = evl.prec_recall_1d(nms_pos, nms_prob, test_pos, test_durations, model.params.detection_overlap, model.params.window_size)
+    #res.plot_prec_recall('cnn', recall, precision, nms_prob)
     # save CNN model to file
-    pickle.dump(model, open(model_dir + 'test_set_' + test_set + '.mod', 'wb'))
+    #pickle.dump(model, open(model_dir + 'test_set_' + test_set + '.mod', 'wb'))
 
     #
     # random forest

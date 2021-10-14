@@ -81,7 +81,7 @@ def prec_recall_1d(nms_pos_o, nms_prob_o, gt_pos_o, durations, detection_overlap
         gt_pos = gt_pos_o
 
     # loop through each file
-    true_pos = []  # correctly predicts the ground truth
+    true_pos  = []  # correctly predicts the ground truth
     false_pos = []  # says there is a detection but isn't
     for ii in range(len(nms_pos)):
         num_preds = nms_pos[ii].shape[0]

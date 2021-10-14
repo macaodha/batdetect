@@ -15,14 +15,14 @@ from skimage.util import view_as_blocks
 class AudioForest:
 
     def __init__(self, params_):
-        self.params = params_
+        self.params   = params_
         forest_params = rf.ForestParams(num_classes=2, trees=self.params.trees,
-        depth=self.params.depth, min_cnt=self.params.min_cnt, tests=self.params.tests)
-        self.forest = rf.Forest(forest_params)
+        depth         = self.params.depth, min_cnt=self.params.min_cnt, tests=self.params.tests)
+        self.forest   = rf.Forest(forest_params)
 
     def train(self, positions, class_labels, files, durations):
         feats = []
-        labs = []
+        labs  = []
         for ii, file_name in enumerate(files):
 
             local_feats = self.create_or_load_features(file_name)
@@ -36,7 +36,7 @@ class AudioForest:
 
         # flatten list of lists and set to correct output
         features = np.vstack(feats)
-        labels = np.vstack(labs)
+        labels   = np.vstack(labs)
         print('train size', features.shape)
         self.forest.train(features, labels, False)
 
@@ -69,13 +69,13 @@ class AudioForest:
             if self.params.load_features_from_file:
                 features = np.load(self.params.feature_dir + file_name + '.npy')
             else:
-                sampling_rate, audio_samples = wavfile.read(self.params.audio_dir + file_name + '.wav')
+                sampling_rate, audio_samples = wavfile.read(self.params.audio_dir + file_name.decode() + '.wav')
                 features = compute_features(audio_samples, sampling_rate, self.params)
         return features
 
     def save_features(self, files):
         for file_name in files:
-            sampling_rate, audio_samples = wavfile.read(self.params.audio_dir + file_name + '.wav')
+            sampling_rate, audio_samples = wavfile.read(self.params.audio_dir + file_name.decode() + '.wav')
             features = compute_features(audio_samples, sampling_rate, self.params)
             np.save(self.params.feature_dir + file_name, features)
 
@@ -120,8 +120,8 @@ def compute_features(audio_samples, sampling_rate, params):
         total_win_size = spectrogram.shape[1]
 
     elif params.feature_type == 'grad':
-        grad = np.gradient(spectrogram)
-        grad_mag = np.sqrt((grad[0]**2 + grad[1]**2))
+        grad           = np.gradient(spectrogram)
+        grad_mag       = np.sqrt((grad[0]**2 + grad[1]**2))
         total_win_size = spectrogram.shape[1]
 
         spec_win = view_as_windows(grad_mag, (grad_mag.shape[0], params.window_width))[0]
@@ -129,38 +129,38 @@ def compute_features(audio_samples, sampling_rate, params):
 
     elif params.feature_type == 'max_freq':
 
-        num_max_freqs = 3  # e.g. 1 means keep top 1, 2 means top 2, ...
+        num_max_freqs  = 3  # e.g. 1 means keep top 1, 2 means top 2, ...
         total_win_size = spectrogram.shape[1]
-        max_freq = np.argsort(spectrogram, 0)
-        max_amp = np.sort(spectrogram, 0)
-        stacked = np.vstack((max_amp[-num_max_freqs:, :], max_freq[-num_max_freqs:, :]))
+        max_freq       = np.argsort(spectrogram, 0)
+        max_amp        = np.sort(spectrogram, 0)
+        stacked        = np.vstack((max_amp[-num_max_freqs:, :], max_freq[-num_max_freqs:, :]))
 
         spec_win = view_as_windows(stacked, (stacked.shape[0], params.window_width))[0]
 
     elif params.feature_type == 'hog':
-        block_size = 4
-        hog = gf.compute_hog(spectrogram, block_size)
-        total_win_size = hog.shape[1]
+        block_size        = 4
+        hog               = gf.compute_hog(spectrogram, block_size)
+        total_win_size    = hog.shape[1]
         window_width_down = np.rint(params.window_width / float(block_size))
 
         spec_win = view_as_windows(hog, (hog.shape[0], window_width_down, hog.shape[2]))[0]
 
     elif params.feature_type == 'grad_pool':
-        grad = np.gradient(spectrogram)
+        grad     = np.gradient(spectrogram)
         grad_mag = np.sqrt((grad[0]**2 + grad[1]**2))
 
-        down_sample_size = 4
+        down_sample_size  = 4
         window_width_down = np.rint(params.window_width / float(down_sample_size))
-        grad_mag_pool = spatial_pool(grad_mag, down_sample_size)
-        total_win_size = grad_mag_pool.shape[1]
+        grad_mag_pool     = spatial_pool(grad_mag, down_sample_size)
+        total_win_size    = grad_mag_pool.shape[1]
 
         spec_win = view_as_windows(grad_mag_pool, (grad_mag_pool.shape[0], window_width_down))[0]
 
     elif params.feature_type == 'raw_pool':
-        down_sample_size = 4
+        down_sample_size  = 4
         window_width_down = np.rint(params.window_width / float(down_sample_size))
-        spec_pool = spatial_pool(spectrogram, down_sample_size)
-        total_win_size = spec_pool.shape[1]
+        spec_pool         = spatial_pool(spectrogram, down_sample_size)
+        total_win_size    = spec_pool.shape[1]
 
         spec_win = view_as_windows(spec_pool, (spec_pool.shape[0], window_width_down))[0]
 

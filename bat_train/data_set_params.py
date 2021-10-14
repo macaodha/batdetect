@@ -32,8 +32,8 @@ class DataSetParams:
 
         # rf_vanilla params
         self.feature_type = 'grad_pool'  # raw, grad, grad_pool, raw_pool, hog, max_freq
-        self.trees   = 50
-        self.depth   = 20
+        self.trees   = 5#50
+        self.depth   = 2#20
         self.min_cnt = 2
         self.tests   = 5000
 

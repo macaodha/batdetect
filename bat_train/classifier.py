@@ -52,7 +52,7 @@ class Classifier:
         """
         Takes a list of files as input and runs the detector on them.
         """
-        nms_pos = [None]*len(files)
+        nms_pos  = [None]*len(files)
         nms_prob = [None]*len(files)
         for ii, file_name in enumerate(files):
             nms_pos[ii], nms_prob[ii], y_prediction = self.model.test(file_name=file_name, file_duration=durations[ii])
@@ -71,7 +71,7 @@ class Classifier:
 
         nms_pos, nms_prob = self.test_batch(files, gt_pos, durations, False, '')
 
-        positions_new = [None]*len(nms_pos)
+        positions_new    = [None]*len(nms_pos)
         class_labels_new = [None]*len(nms_pos)
         for ii in range(len(files)):
 
@@ -81,26 +81,26 @@ class Classifier:
             if gt_pos[ii].shape[0] > 0:
                 # have the extra newaxis in case gt_pos[ii] shape changes in the future
                 pw_distance = np.abs(poss_negs[np.newaxis, ...]-gt_pos[ii][:,0][..., np.newaxis])
-                dis_check = (pw_distance >= (self.params.window_size / 3)).mean(0)
-                new_negs = poss_negs[dis_check==1]
+                dis_check   = (pw_distance >= (self.params.window_size / 3)).mean(0)
+                new_negs    = poss_negs[dis_check==1]
             else:
                 new_negs = poss_negs
             new_negs = new_negs[new_negs < (durations[ii]-self.params.window_size)]
 
             # add them to the training set
-            positions_new[ii] = np.hstack((positions[ii], new_negs))
+            positions_new[ii]    = np.hstack((positions[ii], new_negs))
             class_labels_new[ii] = np.vstack((class_labels[ii], np.zeros((new_negs.shape[0], 1))))
 
             # sort
-            sorted_inds = np.argsort(positions_new[ii])
-            positions_new[ii] = positions_new[ii][sorted_inds]
+            sorted_inds          = np.argsort(positions_new[ii])
+            positions_new[ii]    = positions_new[ii][sorted_inds]
             class_labels_new[ii] = class_labels_new[ii][sorted_inds]
 
         return positions_new, class_labels_new
 
 
 def generate_training_positions(files, gt_pos, durations, params):
-    positions = [None]*len(files)
+    positions    = [None]*len(files)
     class_labels = [None]*len(files)
     for ii, ff in enumerate(files):
         positions[ii], class_labels[ii] = extract_train_position_from_file(gt_pos[ii], durations[ii], params)
@@ -118,13 +118,13 @@ def extract_train_position_from_file(gt_pos, duration, params):
     if gt_pos.shape[0] == 0:
         # dont extract any values if the file does not contain anything
         # we will use these ones for HNM later
-        positions = np.zeros(0)
+        positions    = np.zeros(0)
         class_labels = np.zeros((0,1))
     else:
-        shift = 0  # if there is augmentation this is how much we will add
+        shift         = 0  # if there is augmentation this is how much we will add
         num_neg_calls = gt_pos.shape[0]
-        pos_window = params.window_size / 2  # window around GT that is not sampled from
-        pos = gt_pos[:, 0]
+        pos_window    = params.window_size / 2  # window around GT that is not sampled from
+        pos           = gt_pos[:, 0]
 
         # augmentation
         if params.add_extra_calls:
@@ -134,8 +134,8 @@ def extract_train_position_from_file(gt_pos, duration, params):
 
         # sample a set of negative locations - need to be sufficiently far away from GT
         pos_pad = np.hstack((0-params.window_size, gt_pos[:, 0], duration-params.window_size))
-        neg = []
-        cnt = 0
+        neg     = []
+        cnt     = 0
         while cnt < num_neg_calls:
             rand_pos = np.random.random()*pos_pad.max()
             if (np.abs(pos_pad - rand_pos) > (pos_window+shift)).mean() == 1:
@@ -144,9 +144,9 @@ def extract_train_position_from_file(gt_pos, duration, params):
         neg = np.asarray(neg)
 
         # sort them
-        positions = np.hstack((pos, neg))
+        positions   = np.hstack((pos, neg))
         sorted_inds = np.argsort(positions)
-        positions = positions[sorted_inds]
+        positions   = positions[sorted_inds]
 
         # create labels
         class_labels = np.vstack((np.ones((pos.shape[0], 1)), np.zeros((neg.shape[0], 1))))
