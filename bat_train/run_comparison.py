@@ -63,25 +63,25 @@ if __name__ == '__main__':
     params.classification_model = 'cnn'
     model = clss.Classifier(params)
     # train and test
-    #model.train(train_files, train_pos, train_durations)
-    #nms_pos, nms_prob = model.test_batch(test_files, test_pos, test_durations, False, '')
-    # compute precision recall
-    #precision, recall = evl.prec_recall_1d(nms_pos, nms_prob, test_pos, test_durations, model.params.detection_overlap, model.params.window_size)
-    #res.plot_prec_recall('cnn', recall, precision, nms_prob)
-    # save CNN model to file
-    #pickle.dump(model, open(model_dir + 'test_set_' + test_set + '.mod', 'wb'))
-
-    #
-    # random forest
-    print('\nrandom forest')
-    params.classification_model = 'rf_vanilla'
-    model = clss.Classifier(params)
-    # train and test
     model.train(train_files, train_pos, train_durations)
     nms_pos, nms_prob = model.test_batch(test_files, test_pos, test_durations, False, '')
     # compute precision recall
     precision, recall = evl.prec_recall_1d(nms_pos, nms_prob, test_pos, test_durations, model.params.detection_overlap, model.params.window_size)
-    res.plot_prec_recall('rf', recall, precision, nms_prob)
+    res.plot_prec_recall('cnn', recall, precision, nms_prob)
+    # save CNN model to file
+    pickle.dump(model, open(model_dir + 'test_set_' + test_set + '.mod', 'wb'))
+
+    #
+    # random forest
+    print('\nrandom forest')
+    #params.classification_model = 'rf_vanilla'
+    #model = clss.Classifier(params)
+    # train and test
+    #model.train(train_files, train_pos, train_durations)
+    #nms_pos, nms_prob = model.test_batch(test_files, test_pos, test_durations, False, '')
+    # compute precision recall
+    #precision, recall = evl.prec_recall_1d(nms_pos, nms_prob, test_pos, test_durations, model.params.detection_overlap, model.params.window_size)
+    #res.plot_prec_recall('rf', recall, precision, nms_prob)
 
     #
     # segment
@@ -125,3 +125,21 @@ if __name__ == '__main__':
     # save results
     plt.savefig(result_dir + test_set + '_results.png')
     plt.savefig(result_dir + test_set + '_results.pdf')
+
+def segment_fn(specs, durs):
+    pos_list    = []
+    prob_list   = []
+    y_pred_list = []
+    count = 0
+    ndiv = len(durs)//10
+    for spec, dur in zip(specs, durs):
+        if count % ndiv == 0:
+            print(count+1, '/', len(durs))
+        pos    = compute_position_from_segment(spec, dur)
+        prob   = np.ones((pos.shape[0], 1))  # no probability information
+        y_pred = np.zeros((spectrogram.shape[1], 1))  # dummy
+        pos_list.append(pos)
+        prob_list.append(prob)
+        y_pred_list.append(y_pred)
+        count = count+1
+    return pos_list, prob_list, y_pred_list

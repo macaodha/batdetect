@@ -14,6 +14,7 @@ def compute_error_auc(op_str, gt, pred, prob):
 
     print(op_str, ', class acc = %.3f, ROC AUC = %.3f' % (class_acc, roc_auc))
     #return class_acc, roc_auc
+    #return fpr, tpr
 
 
 def calc_average_precision(recall, precision):
@@ -23,7 +24,7 @@ def calc_average_precision(recall, precision):
 
     # pascal'12 way
     mprec = np.hstack((0, precision, 0))
-    mrec = np.hstack((0, recall, 1))
+    mrec  = np.hstack((0, recall, 1))
     for ii in range(mprec.shape[0]-2, -1,-1):
         mprec[ii] = np.maximum(mprec[ii], mprec[ii+1])
     inds = np.where(np.not_equal(mrec[1:], mrec[:-1]))[0]+1
@@ -35,9 +36,9 @@ def calc_average_precision(recall, precision):
 def remove_end_preds(nms_pos_o, nms_prob_o, gt_pos_o, durations, win_size):
     # this filters out predictions and gt that are close to the end
     # this is a bit messy because of the shapes of gt_pos_o
-    nms_pos = []
+    nms_pos  = []
     nms_prob = []
-    gt_pos = []
+    gt_pos   = []
     for ii in range(len(nms_pos_o)):
         valid_time = durations[ii] - win_size
         gt_cur = gt_pos_o[ii]
@@ -70,16 +71,16 @@ def prec_recall_1d(nms_pos_o, nms_prob_o, gt_pos_o, durations, detection_overlap
     precision: fraction of retrieved instances that are relevant.
     recall: fraction of relevant instances that are retrieved.
     """
-
+    
     if remove_eof:
         # filter out the detections in both ground truth and predictions that are too
         # close to the end of the file - dont count them during eval
         nms_pos, nms_prob, gt_pos = remove_end_preds(nms_pos_o, nms_prob_o, gt_pos_o, durations, win_size)
     else:
-        nms_pos = nms_pos_o
+        nms_pos  = nms_pos_o
         nms_prob = nms_prob_o
-        gt_pos = gt_pos_o
-
+        gt_pos   = gt_pos_o
+    
     # loop through each file
     true_pos  = []  # correctly predicts the ground truth
     false_pos = []  # says there is a detection but isn't
@@ -107,27 +108,33 @@ def prec_recall_1d(nms_pos_o, nms_prob_o, gt_pos_o, durations, detection_overlap
 
     # calc precision and recall - sort confidence in descending order
     # PASCAL style
-    conf = np.concatenate(nms_prob)[:, 0]
+    
+    conf   = np.concatenate(nms_prob)[:, 0]
     num_gt = np.concatenate(gt_pos).shape[0]
-    inds = np.argsort(conf)[::-1]
-    true_pos_cat = np.concatenate(true_pos)[inds].astype(float)
+    inds   = np.argsort(conf)[::-1]
+    true_pos_cat  = np.concatenate(true_pos)[inds].astype(float)
     false_pos_cat = np.concatenate(false_pos)[inds].astype(float)  # i.e. 1-true_pos_cat
+    #print(num_gt)
 
     if (conf == conf[0]).sum() == conf.shape[0]:
         # all the probability values are the same therefore we will not sweep
         # the curve and instead will return a single value
-        true_pos_sum = true_pos_cat.sum()
+        true_pos_sum  = true_pos_cat.sum()
         false_pos_sum = false_pos_cat.sum()
 
-        recall = np.asarray([true_pos_sum / float(num_gt)])
+        recall    = np.asarray([true_pos_sum / float(num_gt)])
         precision = np.asarray([(true_pos_sum / (false_pos_sum + true_pos_sum))])
 
     elif inds.shape[0] > 0:
         # otherwise produce a list of values
-        true_pos_cum = np.cumsum(true_pos_cat)
+        true_pos_cum  = np.cumsum(true_pos_cat)
         false_pos_cum = np.cumsum(false_pos_cat)
 
-        recall = true_pos_cum / float(num_gt)
+        recall    = true_pos_cum / float(num_gt)
         precision = (true_pos_cum / (false_pos_cum + true_pos_cum))
+
+    #true_neg_cum  = len(true_pos_cat) - true_pos_cat.sum()
+    #false_neg_cum = len(true_pos_cat) - true_pos_cat.sum()
+    #fpr, tpr = false_pos_cum / (false_pos_cum + true_neg_cum), true_pos_cum / (true_pos_cum + false_neg_cum)
 
     return precision, recall

@@ -30,7 +30,7 @@ class SegmentAudio:
                     mean_log_mag=self.params.mean_log_mag, smooth_spec=self.params.smooth_spec)
 
         # compute possible call locations
-        pos = compute_position_from_segment(spectrogram, file_duration, self.params)
+        pos  = compute_position_from_segment(spectrogram, file_duration, self.params)
         prob = np.ones((pos.shape[0], 1))  # no probability information
         y_prediction = np.zeros((spectrogram.shape[1], 1))  # dummy
 
@@ -44,8 +44,8 @@ def compute_position_from_segment(spec, file_duration, params):
     """
 
     # median filter
-    med_time = np.median(spec, 0)[np.newaxis, :]
-    med_freq = np.median(spec, 1)[:, np.newaxis]
+    med_time   = np.median(spec, 0)[np.newaxis, :]
+    med_freq   = np.median(spec, 1)[:, np.newaxis]
     med_freq_m = np.tile(med_freq, (1, spec.shape[1]))
     med_time_m = np.tile(med_time, (spec.shape[0], 1))
 
@@ -59,18 +59,18 @@ def compute_position_from_segment(spec, file_duration, params):
 
     # connected component and filter by size
     label_im, num_labels = scipy.ndimage.label(spec_t_morph)
-    sizes = scipy.ndimage.sum(spec_t_morph, label_im, range(num_labels + 1))
+    sizes     = scipy.ndimage.sum(spec_t_morph, label_im, range(num_labels + 1))
     mean_vals = scipy.ndimage.sum(spec, label_im, range(1, num_labels + 1))
     mask_size = sizes < params.min_region_size
     remove_pixel = mask_size[label_im]
     label_im[remove_pixel] = 0
-    labels = np.unique(label_im)
+    labels   = np.unique(label_im)
     label_im = np.searchsorted(labels, label_im)
 
     # get vertical positions
     num_calls = np.unique(label_im).shape[0]-1  # no zero
-    props = regionprops(label_im)
-    call_pos = np.zeros(num_calls)
+    props     = regionprops(label_im)
+    call_pos  = np.zeros(num_calls)
     for ii, pp in enumerate(props):
         call_pos[ii] = pp['bbox'][1] / float(spec.shape[1])
 

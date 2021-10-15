@@ -7,16 +7,10 @@ from scipy.io import wavfile
 import pyximport; pyximport.install()
 import nms
 
-import theano
-theano.config.optimizer="None"
-import lasagne
+import tensorflow
+import keras
 
-
-#print('Theano BLAS print', theano.config.blas.ldflags)
-#from lasagne.layers.dnn import Conv2DDNNLayer as ConvLayer
-from lasagne.layers import Conv2DLayer as ConvLayer
-from lasagne.layers import Pool2DLayer as PoolLayer
-from lasagne.layers import DenseLayer
+from tensorflow.keras import layers, models, regularizers
 
 
 class NeuralNet:
@@ -43,27 +37,31 @@ class NeuralNet:
         # flatten list of lists and set to correct output size
         features = np.vstack(feats)
         labels   = np.vstack(labs).astype(np.uint8)[:,0]
+
         print('train size', features.shape)
 
+        batch_size = self.params.batchsize
+        train_ds   = train_ds.batch(batch_size)
+        val_ds     = val_ds.batch(batch_size)
+
+        for spectrogram, _ in train_ds.take(1):
+            input_shape = spectrogram.shape
+
         # train network
-        input_var    = theano.tensor.tensor4('inputs')
-        target_var   = theano.tensor.ivector('targets')
-        self.network = build_cnn(features.shape[2:], input_var, self.params.net_type)
+        self.network = build_cnn(input_shape, self.params.net_type)
 
-        prediction = lasagne.layers.get_output(self.network['prob'])
-        loss       = lasagne.objectives.categorical_crossentropy(prediction, target_var)
-        loss       = loss.mean()
-        params     = lasagne.layers.get_all_params(self.network['prob'], trainable=True)
-        updates    = lasagne.updates.nesterov_momentum(
-                loss, params, learning_rate=self.params.learn_rate, momentum=self.params.moment)
-        train_fn   = theano.function([input_var, target_var], loss, updates=updates)
-
-        for epoch in range(self.params.num_epochs):
-            # in each epoch, we do a full pass over the training data
-            print('Epoch:', epoch, '/', self.params.num_epochs)
-            for batch in iterate_minibatches(features, labels, self.params.batchsize, shuffle=True):
-                inputs, targets = batch
-                train_fn(inputs, targets)
+        model.compile(
+            optimizer = tf.keras.optimizers.Adam(learning_rate=self.params.learn_rate),
+            loss      = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+            metrics   = 'accuracy',#tf.keras.metrics.SparseCategoricalAccuracy(),
+            )
+        history = model.fit(
+            train_ds, 
+            validation_data = val_ds,  
+            epochs          = self.params.num_epochs,
+            #callbacks       = tf.keras.callbacks.EarlyStopping(verbose=1, patience=2)
+            )
+        
 
         # test function
         pred = lasagne.layers.get_output(self.network['prob'], deterministic=True)[:, 1]
@@ -129,28 +127,38 @@ def build_cnn(ip_size, input_var, net_type):
         print('Error: network not defined')
     return net
 
-def network_big(ip_size, input_var):
-    net = {}
-    net['input'] = lasagne.layers.InputLayer(shape=(None, 1, ip_size[0], ip_size[1]), input_var=input_var)
-    net['conv1'] = ConvLayer(net['input'], 32, 3, pad=1)
-    net['pool1'] = PoolLayer(net['conv1'], 2)
-    net['conv2'] = ConvLayer(net['pool1'], 32, 3, pad=1)
-    net['pool2'] = PoolLayer(net['conv2'], 2)
-    net['conv3'] = ConvLayer(net['pool2'], 32, 3, pad=1)
-    net['pool3'] = PoolLayer(net['conv3'], 2)
-    net['fc1']   = DenseLayer(lasagne.layers.dropout(net['pool3'], p=0.5), num_units=256, nonlinearity=lasagne.nonlinearities.rectify)
-    net['prob']  = DenseLayer(lasagne.layers.dropout(net['fc1'], p=0.5), num_units=2, nonlinearity=lasagne.nonlinearities.softmax)
+def network_big(input_shape):
+    net = models.Sequential([
+        layers.Input(shape=input_shape),
+        layers.Conv2D(32, 3, activation='relu'),
+        layers.MaxPooling2D(),
+        layers.Conv2D(32, 3, activation='relu'),
+        layers.MaxPooling2D(),
+        layers.Conv2D(32, 3, activation='relu'),
+        layers.MaxPooling2D(),
+        layers.Flatten(),
+        layers.Dropout(0.5),
+        layers.Dense(256, activation='relu', kernel_regularizer=regularizers.l2(0.001)),
+        layers.Dropout(0.5),
+        layers.Dense(2, activation = 'softmax'),
+    ])
+
     return net
 
 def network_sm(ip_size, input_var):
-    net = {}
-    net['input'] = lasagne.layers.InputLayer(shape=(None, 1, ip_size[0], ip_size[1]), input_var=input_var)
-    net['conv1'] = ConvLayer(net['input'], 16, 3, pad=0)
-    net['pool1'] = PoolLayer(net['conv1'], 2)
-    net['conv2'] = ConvLayer(net['pool1'], 16, 3, pad=0)
-    net['pool2'] = PoolLayer(net['conv2'], 2)
-    net['fc1']   = DenseLayer(lasagne.layers.dropout(net['pool2'], p=0.5), num_units=64, nonlinearity=lasagne.nonlinearities.rectify)
-    net['prob']  = DenseLayer(lasagne.layers.dropout(net['fc1'], p=0.5), num_units=2, nonlinearity=lasagne.nonlinearities.softmax)
+    net = models.Sequential([
+        layers.Input(shape=input_shape),
+        layers.Conv2D(16, 3, activation='relu'),
+        layers.MaxPooling2D(),
+        layers.Conv2D(16, 3, activation='relu'),
+        layers.MaxPooling2D(),
+        layers.Flatten(),
+        layers.Dropout(0.5),
+        layers.Dense(64, activation='relu', kernel_regularizer=regularizers.l2(0.001)),
+        layers.Dropout(0.5),
+        layers.Dense(2, activation = 'softmax'),
+    ])
+    
     return net
 
 def compute_features(audio_samples, sampling_rate, params):
