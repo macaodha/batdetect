@@ -1,9 +1,12 @@
 import numpy as np
 from skimage import filters
 from skimage.util.shape import view_as_windows
+from skimage.transform import pyramid_gaussian
 from scipy.ndimage import zoom
 from scipy.ndimage.filters import gaussian_filter1d
 from scipy.io import wavfile
+from time import time
+#import tensorflow as tf
 
 fft_win_length    = 0.02322
 fft_overlap       = 0.75
@@ -85,7 +88,8 @@ def denoise_fn(spec_noisy, mask=None):
     Perform denoising, subtract mean from each frequency band.
     Mask chooses the relevant time steps to use.
     """
-    
+    #start = time()
+    #print('Start:', start)
     if mask is None:
         # no mask
         me = np.mean(spec_noisy, 1)
@@ -104,9 +108,12 @@ def denoise_fn(spec_noisy, mask=None):
             me_inv = np.mean(spec_denoise[:, mask_inv], 1)
             spec_denoise[:, mask_inv] = spec_denoise[:, mask_inv] - me_inv[:, np.newaxis]
 
+    #new_start = time() - start
+    #print('Masking:', new_start)
     # remove anything below 0
     spec_denoise.clip(min=0, out=spec_denoise)
-
+    #new_start = time() - start
+    #print('End:', new_start)
     return spec_denoise
 
 def gen_mag_spectrogram_fft(x, nfft, noverlap):
@@ -158,6 +165,7 @@ def gen_mag_spectrogram(x, fs, ms, overlap_perc):
     # do fft
     # note this will be much slower if x_wins_han.shape[0] is not a power of 2
     complex_spec = np.fft.rfft(x_wins_han, axis=0)
+    #complex_spec = tf.signal.rfft(x_wins_han.T).numpy().T
 
     # calculate magnitude
     mag_spec = (np.conjugate(complex_spec) * complex_spec).real
@@ -236,29 +244,43 @@ def compute_features(audio_samples, sampling_rate):
     """
 
     # load audio and create spectrogram
+    #start = time()
+    #print('Start:', start)
     spectrogram = gen_spectrogram(audio_samples, sampling_rate, fft_win_length, fft_overlap,
                                      crop_spec=crop_spec, max_freq=max_freq, min_freq=min_freq)
+    #new_start = time() - start
+    #print('Generate spectrogram:', new_start)
     spectrogram = process_spectrogram(spectrogram, denoise_spec=denoise, mean_log_mag=mean_log_mag, smooth_spec=smooth_spec)
-
+    #new_start = time() - start
+    #print('Process spectrogram:', new_start)
     # extract windows
     spec_win   = view_as_windows(spectrogram, (spectrogram.shape[0], window_width))[0]
-    spec_win   = zoom(spec_win, (1, 0.5, 0.5), order=1)
+    #new_start = time() - start
+    #print('view_as_windows:', new_start)
+    spec_win  = zoom(spec_win, (1, 0.5, 0.5), order=0) #prev order=1, 0=nearest neighbours, 1=linear
+    #spec_win  = pyramid_gaussian(spec_win, downscale=2, channel_axis=-1)
+    #spec_win  = pyramid_gaussian(spec_win, downscale=2)#, channel_axis=-2) 
+    #new_start = time() - start
+    #print('Zoom:', new_start)
     spec_width = spectrogram.shape[1]
-
+    #new_start = time() - start
+    #print('get shape:', new_start)
     # make the correct size for CNN
     features = np.zeros((spec_width, 1, spec_win.shape[1], spec_win.shape[2]), dtype=np.float32)
     features[:spec_win.shape[0], 0, :, :] = spec_win
-
+    #new_start = time() - start
+    #print('End:', new_start)
     return features
 
 
 def get_audio_features_and_labels(class_labels, positions, durations, paths_decode):
     feats = []
     labs  = []
-    count = 1
+    count = 0
+    ndiv = len(paths_decode) // 10
     for ilab, ipos, idur, file_name in zip(class_labels, positions, durations, paths_decode):
-        if count % 50 == 0:
-            print(count, '/', len(paths_decode))
+        if count % ndiv == 0:
+            print(count+1, '/', len(paths_decode))
         count = count + 1
         if ipos.shape[0] > 0:
             local_feats = create_or_load_features(file_name)

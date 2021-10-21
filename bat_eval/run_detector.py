@@ -42,8 +42,8 @@ def read_audio(file_name, do_time_expansion, chunk_size, win_size):
 
     # pad with zeros so we can go right to the end
     multiplier = np.ceil(file_dur/float(chunk_size-win_size))
-    diff = multiplier*(chunk_size-win_size) - file_dur + win_size
-    audio_pad = np.hstack((audio, np.zeros(int(diff*samp_rate))))
+    diff       = multiplier*(chunk_size-win_size) - file_dur + win_size
+    audio_pad  = np.hstack((audio, np.zeros(int(diff*samp_rate))))
 
     return False, audio_pad, file_dur, samp_rate, samp_rate_orig
 
@@ -86,15 +86,15 @@ def run_model(det, audio, file_dur, samp_rate, detection_thresh, max_num_calls=0
 if __name__ == "__main__":
 
     # params
-    detection_thresh = 0.95        # make this smaller if you want more calls
-    do_time_expansion = True       # if audio is already time expanded set this to False
+    detection_thresh        = 0.95 # make this smaller if you want more calls
+    do_time_expansion       = True # if audio is already time expanded set this to False
     save_individual_results = True # if True will create an output for each file
-    save_summary_result = True     # if True will create a single csv file with all results
+    save_summary_result     = True # if True will create a single csv file with all results
 
     # load data
-    data_dir = 'wavs'                                   # this is the path to your audio files
-    op_ann_dir = 'results'                              # this where your results will be saved
-    op_ann_dir_ind = os.path.join(op_ann_dir, 'individual_results')  # this where individual results will be saved
+    data_dir   = 'wavs'            # this is the path to your audio files
+    op_ann_dir = 'results'         # this where your results will be saved
+    op_ann_dir_ind     = os.path.join(op_ann_dir, 'individual_results')  # this where individual results will be saved
     op_file_name_total = os.path.join(op_ann_dir, 'results.csv')
     if not os.path.isdir(op_ann_dir):
         os.makedirs(op_ann_dir)
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
 
     # load and create the detector
-    det_model_file = 'models/detector.npy'
+    det_model_file  = 'models/detector.npy'
     det_params_file = det_model_file[:-4] + '_params.json'
     det = detector.CPUDetector(det_model_file, det_params_file)
 
@@ -140,7 +140,7 @@ if __name__ == "__main__":
         # save results
         if save_individual_results:
             # save to AudioTagger format
-            f_name_fmt = file_name_basename.replace('/', '_').replace('\\', '_')[:-4]
+            f_name_fmt   = file_name_basename.replace('/', '_').replace('\\', '_')[:-4]
             op_file_name = os.path.join(op_ann_dir_ind, f_name_fmt) + '-sceneRect.csv'
             wo.create_audio_tagger_op(file_name_basename, op_file_name, det_time,
                                       det_prob, samp_rate_orig, class_name='bat')

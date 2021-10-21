@@ -88,13 +88,13 @@ if __name__ == "__main__":
     """
 
     # params
-    detection_thresh = 0.80   # make this smaller if you want more calls detected
+    detection_thresh  = 0.80  # make this smaller if you want more calls detected
     do_time_expansion = True  # set to True if audio is not already time expanded
     save_res = True
 
     # load data -
     data_dir   = 'path_to_data/' # path of the data that we run the model on
-    op_ann_dir = 'results/'    # where we will store the outputs
+    op_ann_dir = 'results/'      # where we will store the outputs
     op_file_name_total = op_ann_dir + 'op_file.csv'
     if not os.path.isdir(op_ann_dir):
         os.makedirs(op_ann_dir)
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     # load gpu lasagne model
     model_dir  = 'data/models/'
     model_file = model_dir + 'test_set_bulgaria.mod'
-    det = pickle.load(open(model_file))
+    det        = pickle.load(open(model_file))
     det.chunk_size = 4.0
 
     # read audio files
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         if save_res:
             # return detector results
             pred_classes = np.zeros((len(det_time), 1), dtype=np.int)
-            pred_prob = np.asarray(det_prob)[..., np.newaxis]
+            pred_prob    = np.asarray(det_prob)[..., np.newaxis]
 
             # save to AudioTagger format
             op_file_name = op_ann_dir + file_name_root[:-4] + '-sceneRect.csv'

@@ -1,7 +1,7 @@
 #tensorflow bat detector
 
 getwd()
-setwd('C:/Users/AnthonyGibbons/OneDrive - Peroptyx/Documents/GitHub/batdetect/bat_train')
+setwd('C:/Users/Anthony/Documents/GitHub/batdetect/bat_train')
 
 test_set      <- 'bulgaria'  # can be one of: bulgaria, uk, norfolk
 data_set      <- paste0('data/train_test_split/test_set_', test_set, '.npz')
