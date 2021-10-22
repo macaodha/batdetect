@@ -8,3 +8,4 @@ bat_train/data/models
 bat_train/data/train_test_split
 bat_train/data/wav
 bat_train/data/labelled_data
+bat_train/results/detections

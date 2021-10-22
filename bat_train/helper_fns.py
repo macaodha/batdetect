@@ -3,7 +3,7 @@ from skimage import filters
 from skimage.util.shape import view_as_windows
 #from skimage.transform import pyramid_gaussian
 from scipy.ndimage import zoom
-#from scipy.ndimage.filters import gaussian_filter1d
+
 from scipy.io import wavfile
 from time import time
 
@@ -13,24 +13,6 @@ import scipy.ndimage
 from skimage.measure import regionprops
 #import tensorflow as tf
 
-fft_win_length    = 0.02322
-fft_overlap       = 0.75
-crop_spec         = True
-max_freq          = 270
-min_freq          = 10
-denoise           = True
-mean_log_mag      = 0.5
-smooth_spec       = True
-window_size       = 0.230  
-window_width      = np.rint(window_size / ((1-fft_overlap)*fft_win_length))
-detection_overlap = 0.1 
-detection_prob    = 0.5
-
-save_features_to_disk   = True
-load_features_from_file = False
-
-spec_dir  = ''
-audio_dir = ''
 
 def generate_training_positions(files, gt_pos, durations):
     positions    = [None]*len(files)
@@ -224,7 +206,7 @@ def process_spectrogram(spec, denoise_spec=True, mean_log_mag=0.5, smooth_spec=T
 
     return spec
 
-def create_or_load_features(file_name=None, audio_samples=None, sampling_rate=None):
+def create_or_load_features(params, file_name=None, audio_samples=None, sampling_rate=None):
     """
     Does 1 of 3 possible things
     1) computes feature from audio samples directly
@@ -233,17 +215,17 @@ def create_or_load_features(file_name=None, audio_samples=None, sampling_rate=No
     """
 
     if file_name is None:
-        features = compute_features(audio_samples, sampling_rate)
+        features = compute_features(audio_samples, sampling_rate, params)
     else:
-        if load_features_from_file:
-            features = np.load(audio_dir + file_name + '.npy')
+        if params.load_features_from_file:
+            features = np.load(params.spec_dir + file_name + '.npy')
         else:
-            sampling_rate, audio_samples = wavfile.read(audio_dir + file_name + '.wav')
-            features = compute_features(audio_samples, sampling_rate)
+            sampling_rate, audio_samples = wavfile.read(params.audio_dir + file_name + '.wav')
+            features = compute_features(audio_samples, sampling_rate, params)
 
     return features
 
-def compute_features(audio_samples, sampling_rate):
+def compute_features(audio_samples, sampling_rate, params):
     """
     Computes overlapping windows of spectrogram as input for CNN.
     """
@@ -251,15 +233,15 @@ def compute_features(audio_samples, sampling_rate):
     # load audio and create spectrogram
     #start = time()
     #print('Start:', start)
-    spectrogram = gen_spectrogram(audio_samples, sampling_rate, fft_win_length, fft_overlap,
-                                     crop_spec=crop_spec, max_freq=max_freq, min_freq=min_freq)
+    spectrogram = gen_spectrogram(audio_samples, sampling_rate, params.fft_win_length, params.fft_overlap,
+                                     crop_spec=params.crop_spec, max_freq=params.max_freq, min_freq=params.min_freq)
     #new_start = time() - start
     #print('Generate spectrogram:', new_start)
-    spectrogram = process_spectrogram(spectrogram, denoise_spec=denoise, mean_log_mag=mean_log_mag, smooth_spec=smooth_spec)
+    spectrogram = process_spectrogram(spectrogram, denoise_spec=params.denoise, mean_log_mag=params.mean_log_mag, smooth_spec=params.smooth_spec)
     #new_start = time() - start
     #print('Process spectrogram:', new_start)
     # extract windows
-    spec_win   = view_as_windows(spectrogram, (spectrogram.shape[0], window_width))[0]
+    spec_win   = view_as_windows(spectrogram, (spectrogram.shape[0], params.window_width))[0]
     #new_start = time() - start
     #print('view_as_windows:', new_start)
     spec_win  = zoom(spec_win, (1, 0.5, 0.5), order=0) #prev order=1, 0=nearest neighbours, 1=linear
@@ -277,8 +259,7 @@ def compute_features(audio_samples, sampling_rate):
     #print('End:', new_start)
     return features
 
-
-def get_audio_features_and_labels(class_labels, positions, durations, paths_decode):
+def get_audio_features_and_labels(class_labels, positions, durations, paths_decode, params):
     feats = []
     labs  = []
     count = 0
@@ -288,7 +269,7 @@ def get_audio_features_and_labels(class_labels, positions, durations, paths_deco
             print(count+1, '/', len(paths_decode))
         count = count + 1
         if ipos.shape[0] > 0:
-            local_feats = create_or_load_features(file_name)
+            local_feats = create_or_load_features(params, file_name)
 
             # convert time in file to integer
             positions_ratio = ipos / idur
@@ -368,3 +349,53 @@ def segment_fn(specs, durs, spectrogram, params):
         y_pred_list.append(y_pred)
         count = count+1
     return pos_list, prob_list, y_pred_list
+
+def int_min(a, b): 
+    return a if a < b else b
+
+def nms_1d(src, win_size, file_duration):
+    """1D Non maximum suppression
+       src: vector of length N
+    """
+
+    src_cnt = 0
+    max_ind = 0
+    ii      = 0
+    ee      = 0
+    width   = src.shape[0]-1
+    pos     = np.empty(width, dtype=np.int)
+    pos_cnt = 0
+    while ii <= width:
+
+        if max_ind < (ii - win_size):
+            max_ind = ii - win_size
+
+        ee = int_min(ii + win_size, width)
+
+        while max_ind <= ee:
+            src_cnt += 1
+            if src[max_ind] > src[ii]:
+                break
+            max_ind += 1
+
+        if max_ind > ee:
+            pos[pos_cnt] = ii
+            pos_cnt += 1
+            max_ind = ii+1
+            ii += win_size
+
+        ii += 1
+
+    pos = pos[:pos_cnt]
+    val = src[pos]
+
+    # remove peaks near the end
+    inds = (pos + win_size) < src.shape[0]
+    pos = pos[inds]
+    val = val[inds]
+
+    # set output to between 0 and 1, then put it in the correct time range
+    pos = pos.astype(np.float) / src.shape[0]
+    pos = pos*file_duration
+
+    return pos, val[..., np.newaxis]

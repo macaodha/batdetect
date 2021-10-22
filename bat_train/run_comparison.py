@@ -39,7 +39,7 @@ if __name__ == '__main__':
     run a specific model or baseline comment it out.
     """
 
-    test_set      = 'bulgaria'  # can be one of: bulgaria, uk, norfolk
+    test_set      = 'uk'  # can be one of: bulgaria, uk, norfolk
     data_set      = 'data/train_test_split/test_set_' + test_set + '.npz'
     raw_audio_dir = 'data/wav/'
     base_line_dir = 'data/baselines/'
@@ -74,8 +74,8 @@ if __name__ == '__main__':
     train_positions, train_class_labels = generate_training_positions(train_files_decode, train_pos, train_durations)
     test_positions, test_class_labels   = generate_training_positions(test_files_decode, test_pos, test_durations)
 
-    train_features, train_labels = get_audio_features_and_labels(train_class_labels, train_positions, train_durations, train_paths_decode)
-    test_features, test_labels   = get_audio_features_and_labels(test_class_labels, test_positions, train_durations, test_paths_decode)
+    train_features, train_labels = get_audio_features_and_labels(train_class_labels, train_positions, train_durations, train_paths_decode, params)
+    test_features, test_labels   = get_audio_features_and_labels(test_class_labels, test_positions, train_durations, test_paths_decode, params)
     
     train_features = np.expand_dims(train_features,-1)
     test_features  = np.expand_dims(test_features,-1)
@@ -205,11 +205,9 @@ if __name__ == '__main__':
         pr_fig.add_trace(go.Scatter(x = recall_kal, y = precision_kal, 
                             mode = 'markers', name = 'Kaleidoscope',
                             line = dict(color='magenta')))
-    # save results
-    #plt.savefig(result_dir + test_set + '_results.png')
-    #plt.savefig(result_dir + test_set + '_results.pdf')
     
     #pr_fig.show()
     print('Saving precision-recall curve')
-    pr_fig.write_image(result_dir + test_set + '_results.pdf')
+    pr_fig.write_html(result_dir + test_set + '_results.html')
+    #pr_fig.write_image(result_dir + test_set + '_results.pdf')
     print('Done run_comparison.py')    
