@@ -100,7 +100,7 @@ class CPUDetector:
                                     max_freq=self.max_freq, min_freq=self.min_freq)
         hspec = self.sp.process_spectrogram(hspec, denoise_spec=self.denoise,
                                     smooth_spec=self.smooth_spec)
-        nsize = (np.ceil(hspec.shape[0]/2.0).astype(int), np.ceil(hspec.shape[1]/2.0).astype(int))
+        nsize = (np.floor(hspec.shape[0]/2.0).astype(int), np.floor(hspec.shape[1]/2.0).astype(int))
         spec = ch.aligned_malloc(nsize, np.float32)
 
         zoom(hspec, 0.5, output=spec, order=1)
