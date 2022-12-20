@@ -2,6 +2,9 @@
 Python code for the detection of bat echolocation calls in full spectrum audio recordings. This code recreate the results from the paper [Bat Detective - Deep Learning Tools for Bat Acoustic Signal Detection](http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005995). You will also find some additional information and data on our [project page](http://visual.cs.ucl.ac.uk/pubs/batDetective).
 
 
+**Update Dec 2022:** We now have a new and improved codebase that you can access [here](https://github.com/macaodha/batdetect2).  
+
+
 ## Training
 `bat_train` contains the code to train the models and recreate the plots in the paper.
 
@@ -12,7 +15,7 @@ Python code for the detection of bat echolocation calls in full spectrum audio r
 ## Misc
 
 #### Video
-Here is a short video that describes how our systems works.
+Here is a short video that describes how our systems works.  
 [![Screenshot](https://img.youtube.com/vi/u35jWHdhl-8/0.jpg)](https://www.youtube.com/watch?v=u35jWHdhl-8)
 
 
