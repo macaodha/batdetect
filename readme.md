@@ -42,6 +42,3 @@ If you find our work useful in your research please consider citing our paper:
 
 #### Acknowledgements  
 We are enormously grateful for the efforts and enthusiasm of the amazing iBats and Bat Detective volunteers. We would also like to thank Ian Agranat and Joe Szewczak for useful discussions and access to their systems. Finally, we would like to thank [Zooniverse](https://www.zooniverse.org/) for setting up and hosting the Bat Detective project.
-
-#### License
-Code, audio data, and annotations are available for research purposes only i.e. non-commercial use. For any other use of the software or data please contact the authors.
